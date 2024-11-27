@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SFSymbolCategory: Codable, Sendable {
+public struct SFSymbolsCategory: Codable, Sendable, Hashable {
     public typealias ID = String
 
     public let key: ID
@@ -26,25 +26,13 @@ public struct SFSymbol: Codable, Sendable {
 
     public let name: ID
     public let availability: String
-    public let hierarchicalAvailability: String?
-    public let multicolorAvailability: String?
-    public let categories: [SFSymbolCategory.ID]
-    public let aliases: [String]
 
     public init(
         name: ID,
-        availability: String,
-        hierarchicalAvailability: String?,
-        multicolorAvailability: String?,
-        categories: [SFSymbolCategory.ID],
-        aliases: [String]
+        availability: String
     ) {
         self.name = name
         self.availability = availability
-        self.hierarchicalAvailability = hierarchicalAvailability
-        self.multicolorAvailability = multicolorAvailability
-        self.categories = categories
-        self.aliases = aliases
     }
 }
 

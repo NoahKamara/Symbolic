@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FD1968B02CF40B81008D4ABE /* SFSymbolsKit in Frameworks */ = {isa = PBXBuildFile; productRef = FD1968AF2CF40B81008D4ABE /* SFSymbolsKit */; };
+		FDE982952CF66BDF003ABA23 /* Spiral in Frameworks */ = {isa = PBXBuildFile; productRef = FDE982942CF66BDF003ABA23 /* Spiral */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		FD19689C2CF40AC2008D4ABE /* Symbolic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Symbolic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +28,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FD1968B02CF40B81008D4ABE /* SFSymbolsKit in Frameworks */,
+				FDE982952CF66BDF003ABA23 /* Spiral in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +72,8 @@
 			);
 			name = Symbolic;
 			packageProductDependencies = (
+				FD1968AF2CF40B81008D4ABE /* SFSymbolsKit */,
+				FDE982942CF66BDF003ABA23 /* Spiral */,
 			);
 			productName = Symbolic;
 			productReference = FD19689C2CF40AC2008D4ABE /* Symbolic.app */;
@@ -94,6 +103,10 @@
 			);
 			mainGroup = FD1968932CF40AC2008D4ABE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FD1968AE2CF40B81008D4ABE /* XCLocalSwiftPackageReference "../SFSymbolsKit" */,
+				FDE982932CF66BDF003ABA23 /* XCRemoteSwiftPackageReference "Spiral" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FD19689D2CF40AC2008D4ABE /* Products */;
 			projectDirPath = "";
@@ -339,6 +352,36 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		FD1968AE2CF40B81008D4ABE /* XCLocalSwiftPackageReference "../SFSymbolsKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../SFSymbolsKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FDE982932CF66BDF003ABA23 /* XCRemoteSwiftPackageReference "Spiral" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/buh/Spiral.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FD1968AF2CF40B81008D4ABE /* SFSymbolsKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SFSymbolsKit;
+		};
+		FDE982942CF66BDF003ABA23 /* Spiral */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FDE982932CF66BDF003ABA23 /* XCRemoteSwiftPackageReference "Spiral" */;
+			productName = Spiral;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FD1968942CF40AC2008D4ABE /* Project object */;
 }

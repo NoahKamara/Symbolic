@@ -6,15 +6,39 @@
 //
 
 /// The interface for a repository providing SFSymbols metadata
-public protocol SFSymbolsRepository {
+public protocol SFSymbolsRepository: Sendable {
     func symbol(named name: SFSymbol.ID) async throws -> SFSymbol?
+    func symbols(for request: SymbolsFetchRequest) async throws -> [SFSymbol]
+
     func release(for year: SFSymbolsRelease.ID) async throws -> SFSymbolsRelease?
-    func category(forKey key: SFSymbolCategory.ID) async throws -> SFSymbolCategory?
+
+    func category(forKey key: SFSymbolsCategory.ID) async throws -> SFSymbolsCategory?
+    func categories() async throws -> [SFSymbolsCategory]
+}
+
+public extension SFSymbolsRepository {
+    func symbols() async throws -> [SFSymbol] { try await symbols(for: .all) }
+}
+
+public struct SymbolsFetchRequest: Sendable {
+    public let category: SFSymbolsCategory.ID?
+
+    public init(category: SFSymbolsCategory.ID? = nil) {
+        self.category = category
+    }
+
+    public static let all = SymbolsFetchRequest()
+}
+
+extension SFSymbolsRepository {
+    func symbols(for request: SymbolsFetchRequest) async throws -> [SFSymbol] {
+        try await symbols()
+    }
 }
 
 /// a writer for a `SFSymbolsRepository`
 package protocol SFSymbolsRepositoryWriter: SFSymbolsRepository {
-    func insertSymbol(_ symbol: SFSymbol) async throws
-    func insertRelease(_ release: SFSymbolsRelease) async throws
-    func insertCategory(_ category: SFSymbolCategory) async throws
+    func insertSymbols(_ symbols: [SFSymbol]) async throws
+    func insertReleases(_ releases: [SFSymbolsRelease]) async throws
+    func insertCategories(_ categories: [SFSymbolsCategory]) async throws
 }

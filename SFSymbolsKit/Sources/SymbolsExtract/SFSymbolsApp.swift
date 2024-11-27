@@ -69,7 +69,7 @@ struct SFSymbolsApp {
         try loadPlist("name_availability.plist")
     }
 
-    private func categoriesPlist() throws -> [SFSymbolCategory] {
+    private func categoriesPlist() throws -> [SFSymbolsCategory] {
         try loadPlist("categories.plist")
     }
 
@@ -93,47 +93,40 @@ struct SFSymbolsApp {
 // MARK: Extractor
 
 extension SFSymbolsApp {
-    func extract(into repository: SFSymbolsRepositoryWriter) async throws {
-        // load metadata
-        let nameAvailability = try nameAvailabilityPlist()
-        let layersetAvailability = try layersetAvailabilityPlist()
+    func extract(into repository: SymbolsRepository) async throws {
+        // Categories
         let categories = try categoriesPlist()
-        let symbolCategories = try symbolCategoriesPlist()
-
-        let nameAliases = try nameAliasesStrings().valuesAsKeys()
-        let legacyAliases = try legacyAliasesStrings().valuesAsKeys()
-
-        // insert categories
-        for category in categories {
-            try await repository.insertCategory(category)
-        }
+        try await repository.insertCategories(categories)
 
         // insert releases
-        let yearToRelease = nameAvailability.yearToRelease
+        let nameAvailability = try nameAvailabilityPlist()
+        let layersetAvailability = try layersetAvailabilityPlist()
+
+        let releases = nameAvailability.yearToRelease
             .merging(layersetAvailability.yearToRelease, uniquingKeysWith: { name, _ in name })
+            .map { SFSymbolsRelease(year: $0.key, platforms: $0.value) }
 
-        for (year, platforms) in yearToRelease {
-            let release = SFSymbolsRelease(year: year, platforms: platforms)
-            try await repository.insertRelease(release)
-        }
+        try await repository.insertReleases(releases)
 
-        // insert symbols
-        for (name, availability) in nameAvailability.symbols {
-            let layersets = layersetAvailability.symbols[name]
-            let categories = symbolCategories[name] ?? []
-            let aliases = (nameAliases[name] ?? []) + (legacyAliases[name] ?? [])
+        // Insert Symbols
+        let symbols = nameAvailability
+            .symbols
+            .map { SFSymbol(name: $0.key, availability: $0.value) }
+        try await repository.insertSymbols(symbols)
 
-            let symbol = SFSymbol(
-                name: name,
-                availability: availability,
-                hierarchicalAvailability: layersets?["hierarchical"],
-                multicolorAvailability: layersets?["multicolor"],
-                categories: categories,
-                aliases: aliases
-            )
+        // Insert Layerset Availability
+        #warning("insert layerset availability")
 
-            try await repository.insertSymbol(symbol)
-        }
+        // Symbol Categories
+        let symbolCategories = try symbolCategoriesPlist()
+        try await repository.insertSymbolCategories(symbolCategories)
+
+        // Aliases
+        let nameAliases = try nameAliasesStrings().valuesAsKeys()
+        try await repository.insertSymbolAliases(nameAliases)
+
+        // Legacy Aliases
+        let legacyAliases = try legacyAliasesStrings().valuesAsKeys()
     }
 }
 

@@ -1,5 +1,5 @@
 {
-  "originHash" : "e75f261cf8036c0b8298a2f592949b07c62079c49bcf6be662bea8491759bc71",
+  "originHash" : "1d2b18ac319c2d8f560101bbf546e8b03db6a37d120d04606dbb90e511606fd0",
   "pins" : [
     {
       "identity" : "grdb.swift",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "84d25dfc9dc1766feb8c80fb04b9f7e2337fb83e",
         "version" : "7.0.0-beta.6"
+      }
+    },
+    {
+      "identity" : "spiral",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/buh/Spiral.git",
+      "state" : {
+        "revision" : "c529d2e71152edf6890f5f508689de17936d6e96",
+        "version" : "1.0.1"
       }
     },
     {
