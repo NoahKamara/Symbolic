@@ -7,12 +7,87 @@
 
 import SFSymbolsKit
 import SwiftUI
+import Combine
 
 
+@Observable
+class AppModel {
+    let repository: SymbolsRepository
+    
+    @MainActor
+    var category: SFSymbolsCategory.ID? = nil {
+        didSet { triggerUpdate() }
+    }
+    
+    @MainActor
+    var searchTerm: String = "" {
+        didSet { triggerUpdate() }
+    }
+    
+    @MainActor
+    private(set) var result: [SFSymbol] = []
+    
+    var categories: [SFSymbolsCategory] = []
+    
+    init(repository: SymbolsRepository) {
+        self.repository = repository
+        self.updateCancellable = updateSubject
+            .eraseToAnyPublisher()
+            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.global())
+            .sink { request in
+                Task {
+                    let results = try await self.repository.symbols(for: request)
+                    await MainActor.run {
+                        self.result = results
+                    }
+                }
+            }
+        
+        Task { try await self.bootstrap() }
+    }
+    
+    private let updateSubject = PassthroughSubject<SymbolsFetchRequest, Never>()
+    private var updateCancellable: (any Cancellable)!
+    
+    private func bootstrap() async throws {
+        try await update()
+        
+        let categories = try await repository.categories()
+        
+        await MainActor.run {
+            self.categories = categories
+        }
+    }
+    
+    private func update() async throws {
+        let result = try await repository.symbols()
+        await MainActor.run {
+            didUpdateResult(result)
+        }
+    }
+    
+    @MainActor
+    private func triggerUpdate() {
+        let request = SymbolsFetchRequest(
+            searchTerm: !searchTerm.isEmpty ? searchTerm : nil,
+            category: category != "all" ? category : nil
+        )
+        updateSubject.send(request)
+    }
+    
+    @MainActor
+    private func didUpdateResult(_ symbols: [SFSymbol]) {
+        let request = SymbolsFetchRequest(
+            category: category != "all" ? category : nil
+        )
+        print("trigger")
+        updateSubject.send(request)
+    }
+}
 
 
 struct ContentView: View {
-    let symbols: Symbols
+    let model: AppModel
 
     @State
     private var categoryDetail: SFSymbolsCategory? = nil
@@ -25,26 +100,29 @@ struct ContentView: View {
     
     @State
     private var isPresentingInspector: Bool = true
-    
-    func categoryLabel(_ key: SFSymbolsCategory.ID) -> String {
-        let category = symbols.categories.first(where: { $0.key == key })
-        return category?.label ?? "Unknown"
-    }
 
+    private func categoryLabel(forKey key: String) -> String {
+        guard let category = model.categories.first(where: { $0.key == key }) else {
+            return "All Symbols"
+        }
+        
+        return category.label
+    }
+    
     var body: some View {
         SymbolGridView(
-            symbols: symbols.result,
+            symbols: model.result,
             selection: $selectedSymbols
         )
         .environment(style)
-        .navigationTitle(categoryLabel(symbols.category ?? "all"))
+        .navigationTitle(categoryLabel(forKey: model.category ?? "all"))
 #if os(macOS)
             .navigationSubtitle(Text("\(symbols.result.count) Symbols"))
 #else
             .toolbar {
                 ToolbarItem(placement: .status) {
-                    Text("\(symbols.result.count) Symbols")
-                        .contentTransition(.numericText(value: Double(symbols.result.count)))
+                    Text("\(model.result.count) Symbols")
+                        .contentTransition(.numericText(value: Double(model.result.count)))
                 }
             }
 #endif
@@ -69,6 +147,8 @@ struct ContentView: View {
             }
             .inspector(isPresented: $isPresentingInspector) {
                 InspectorView(style: style, selection: $selectedSymbols)
+                    .presentationDetents([.height(300), .medium, .large])
+                    .presentationDragIndicator(.hidden)
             }
             .onAppear {
                 self.selectedSymbols.insert("circle")
@@ -77,12 +157,11 @@ struct ContentView: View {
 }
 
 #Preview {
-    @Previewable let symbols = Symbols(repository: try! SymbolsRepository())
+    @Previewable let model = AppModel(repository: try! SymbolsRepository())
     NavigationStack {
-        ContentView(symbols: symbols)
+        ContentView(model: model)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .task { try? await symbols.bootstrap() }
 }
 
 extension String {

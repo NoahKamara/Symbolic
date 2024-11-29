@@ -21,12 +21,14 @@ public extension SFSymbolsRepository {
 }
 
 public struct SymbolsFetchRequest: Sendable {
+    public let searchTerm: String?
     public let category: SFSymbolsCategory.ID?
 
-    public init(category: SFSymbolsCategory.ID? = nil) {
+    public init(searchTerm: String? = nil, category: SFSymbolsCategory.ID? = nil) {
+        self.searchTerm = searchTerm
         self.category = category
     }
-
+    
     public static let all = SymbolsFetchRequest()
 }
 

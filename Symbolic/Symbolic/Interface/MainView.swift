@@ -10,25 +10,21 @@ import SwiftUI
 
 struct MainView: View {
     @Bindable
-    var symbols: Symbols
-
+    var model: AppModel
+    
     var body: some View {
         NavigationSplitView {
-            SidebarView(categories: symbols.categories, selection: $symbols.category)
+            SidebarView(
+                categories: model.categories,
+                selection: $model.category
+            )
         } detail: {
-            ContentView(symbols: symbols)
-        }
-        .task(id: "bootstrap") {
-            do {
-                try await symbols.bootstrap()
-            } catch {
-                print("bootstrap failed")
-            }
+            ContentView(model: model)
         }
     }
 }
 
 #Preview {
     @Previewable let repository = try! SymbolsRepository()
-    MainView(symbols: Symbols(repository: repository))
+    MainView(model: AppModel(repository: repository))
 }

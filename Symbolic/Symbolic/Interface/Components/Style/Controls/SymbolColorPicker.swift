@@ -72,14 +72,12 @@ struct SymbolColorPicker: View {
                     if case .custom = selection.style {
                         ColorPicker("", selection: $selection.customColor, supportsOpacity: false)
                             .padding(.horizontal)
-                        
                     }
                 }
-                .fixedSize()
+#if os(iOS)
+                .frame(width: 70)
+#endif
         }
-        .menuStyle(.button)
-        .buttonStyle(.bordered)
-        //        .labelsHidden()
     }
 }
 

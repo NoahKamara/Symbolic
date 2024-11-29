@@ -17,7 +17,7 @@ struct SymbolWeightPicker: View {
                 Text(weight.displayName)
             }
         } label: {
-            Text(selection.displayName)
+            Label(selection.displayName, systemImage: "scalemass")
         }
         .fixedSize()
         .pickerStyle(.menu)
