@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SymbolTileView: View {
     let name: String
-    
+
     @Environment(SymbolStyle.self)
     private var style: SymbolStyle?
 
@@ -37,7 +37,7 @@ struct TileView<Content: View>: View {
         ZStack {
             ContainerRelativeShape()
                 .fill(.background)
-            
+
             ContainerRelativeShape()
                 .stroke(.secondary)
 

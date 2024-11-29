@@ -2,14 +2,12 @@
 //  InspectorView.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 26.11.24.
+//  Copyright © 2024 Noah Kamara.
 //
 
-import SwiftUI
 import SFSymbolsKit
 import Spiral
-
-
+import SwiftUI
 
 enum InspectorTab {
     case info
@@ -19,31 +17,30 @@ enum InspectorTab {
 struct InspectorView: View {
     @Environment(\.symbols)
     private var symbols
-    
+
     let style: SymbolStyle
-    
+
     @Binding
     var selection: Set<SFSymbol.ID>
-    
+
     var sortedSymbols: [SFSymbol.ID] {
         selection.sorted()
     }
-    
+
     let maxIndex = 17
-    
+
     @State
     var tab: InspectorTab = .style
-    
+
     var body: some View {
         Group {
             switch tab {
             case .info:
                 InfoTab(selection: selection)
-                
+
             case .style:
                 StyleTab(style: style, selection: selection)
             }
-            
         }
         .frame(maxHeight: .infinity)
         .safeAreaPadding(10)
@@ -51,7 +48,7 @@ struct InspectorView: View {
             Picker("", selection: $tab) {
                 Image(systemName: "info.circle.fill").tag(InspectorTab.info)
                 Image(systemName: "paintpalette.fill").tag(InspectorTab.style)
-                Image(systemName: "play.fill") //.tab(InspectorTab.style)
+                Image(systemName: "play.fill") // .tab(InspectorTab.style)
             }
             .pickerStyle(.segmented)
         }
@@ -64,8 +61,3 @@ struct InspectorView: View {
     }
     .environment(SymbolStyle())
 }
-
-
-
-
-

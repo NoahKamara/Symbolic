@@ -2,23 +2,20 @@
 //  SymbolColorPicker.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 26.11.24.
+//  Copyright © 2024 Noah Kamara.
 //
 
 import SwiftUI
 
-
 struct SymbolColorPicker: View {
     @Binding
     var selection: SymbolColor
-    
-        
+
     var body: some View {
-        
         HStack {
             Menu {
                 Picker(selection: $selection.style) {
-                    ForEach(SymbolColorStyle.hierarchical, id:\.self) { style in
+                    ForEach(SymbolColorStyle.hierarchical, id: \.self) { style in
                         StyleLabelView(style)
                     }
                 } label: {
@@ -29,9 +26,9 @@ struct SymbolColorPicker: View {
                     )
                 }
                 .pickerStyle(.menu)
-                
+
                 Picker(selection: $selection.style) {
-                    ForEach(SymbolColorStyle.colors, id:\.self) { style in
+                    ForEach(SymbolColorStyle.colors, id: \.self) { style in
                         StyleLabelView(style)
                     }
                 } label: {
@@ -42,8 +39,8 @@ struct SymbolColorPicker: View {
                     )
                 }
                 .pickerStyle(.menu)
-                
-                ForEach(SymbolColorStyle.others, id:\.self) { style in
+
+                ForEach(SymbolColorStyle.others, id: \.self) { style in
                     Button(action: { selection.style = style }) {
                         StyleLabelView(style, customColor: selection.customColor)
                     }
@@ -62,7 +59,7 @@ struct SymbolColorPicker: View {
                 }
             }
             .fixedSize()
-            
+
             TextField("100", value: .constant(1.0), format: .percent)
                 .multilineTextAlignment(.trailing)
                 .textFieldStyle(.roundedBorder)
@@ -84,7 +81,7 @@ struct SymbolColorPicker: View {
 #Preview {
     @Previewable @State var hierarchical = SymbolColor(style: .primary)
     @Previewable @State var customColor = SymbolColor(style: .custom)
-    
+
     VStack {
         SymbolColorPicker(selection: $hierarchical)
 //        SymbolColorPicker(selection: $customColor)
@@ -92,18 +89,18 @@ struct SymbolColorPicker: View {
 }
 
 // MARK: StyleLabelView
-fileprivate struct StyleGroupLabel: View {
+
+private struct StyleGroupLabel: View {
     let title: String
     let condition: KeyPath<SymbolColorStyle?, Bool>
     var selection: SymbolColor
-    
-    
+
     init(title: String, condition: KeyPath<SymbolColorStyle?, Bool>, selection: SymbolColor) {
         self.title = title
         self.condition = condition
         self.selection = selection
     }
-    
+
     var body: some View {
         Label {
             Text(title)
@@ -117,17 +114,17 @@ fileprivate struct StyleGroupLabel: View {
     }
 }
 
-
 // MARK: StyleLabelView
-fileprivate struct StyleLabelView: View {
+
+private struct StyleLabelView: View {
     let style: SymbolColor.Style
     let customColor: CGColor
-    
+
     init(_ style: SymbolColor.Style, customColor: CGColor = .black) {
         self.style = style
         self.customColor = customColor
     }
-        
+
     var body: some View {
         Label {
             Text(style.displayName)
@@ -140,15 +137,16 @@ fileprivate struct StyleLabelView: View {
 }
 
 // MARK: Color View
-fileprivate struct ColorView: View {
+
+private struct ColorView: View {
     let style: SymbolColor.Style
     let customColor: CGColor
-    
+
     init(style: SymbolColor.Style, customColor: CGColor = .black) {
         self.style = style
         self.customColor = customColor
     }
-        
+
     var body: some View {
         Image("rectangle-stroke-and-fill")
             .foregroundStyle(
@@ -163,9 +161,10 @@ extension Array {
         guard let element else {
             return false
         }
-        return self.contains(element)
+        return contains(element)
     }
 }
+
 extension SymbolColor.Style {
     var displayName: String {
         switch self {
@@ -221,7 +220,7 @@ extension SymbolColor.Style {
         .primary,
         .secondary,
         .tertiary,
-        .quaternary
+        .quaternary,
     ]
 
     var isColor: Bool { Self.colors.contains(self) }
@@ -234,15 +233,16 @@ extension Optional {
         if case .none = self { true } else { false }
     }
 }
-extension Optional where Wrapped == SymbolColorStyle {
-    var isColor: Bool { map({ Wrapped.colors.contains($0) }) ?? false }
-    var isOther: Bool { map({ Wrapped.others.contains($0) }) ?? false }
-    var isHierarchical: Bool { map({ Wrapped.hierarchical.contains($0) }) ?? false }
+
+extension SymbolColorStyle? {
+    var isColor: Bool { map { Wrapped.colors.contains($0) } ?? false }
+    var isOther: Bool { map { Wrapped.others.contains($0) } ?? false }
+    var isHierarchical: Bool { map { Wrapped.hierarchical.contains($0) } ?? false }
 }
 
 #if os(iOS)
 extension CGColor {
     static var black: CGColor { CGColor(gray: 0, alpha: 1) }
-    static var clear: CGColor { CGColor.init(gray: 0, alpha: 0) }
+    static var clear: CGColor { CGColor(gray: 0, alpha: 0) }
 }
 #endif

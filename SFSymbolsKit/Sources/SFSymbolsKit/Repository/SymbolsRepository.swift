@@ -36,7 +36,7 @@ public struct SymbolsRepository: SFSymbolsRepository {
         let database = try DatabaseQueue(path: path)
         try self.init(database: database)
     }
-    
+
     public func symbol(named name: SFSymbol.ID) async throws -> SFSymbol? {
         try await database.read { db in
             try SFSymbol.filter(Column("name") == name).fetchOne(db)

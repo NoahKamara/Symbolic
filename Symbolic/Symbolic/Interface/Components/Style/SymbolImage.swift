@@ -1,19 +1,19 @@
 //
-//  SymbolStyleModifier.swift
+//  SymbolImage.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 27.11.24.
+//  Copyright © 2024 Noah Kamara.
 //
 
 import SwiftUI
 
 public struct SymbolImage: View {
     let name: String
-    
+
     @Environment(SymbolStyle.self)
     var style: SymbolStyle?
     private var fallbackStyle: SymbolStyle { style ?? .init() }
-    
+
     public var body: some View {
         Image(systemName: name)
             .fontWeight(fallbackStyle.weight.toFontWeight())
@@ -30,10 +30,11 @@ public struct SymbolImage: View {
 
 struct SymbolForegroundStyle: ViewModifier {
     let colors: SymbolColors
-    
+
     func body(content: Content) -> some View {
         if let primary = colors.primary.style,
-            let secondary = colors.secondary.style {
+           let secondary = colors.secondary.style
+        {
             if let tertiary = colors.tertiary.style {
                 content
                     .foregroundStyle(
@@ -58,7 +59,7 @@ struct SymbolForegroundStyle: ViewModifier {
 }
 
 func symbolColor(_ style: SymbolColor.Style, customColor: CGColor = SymbolColor.defaultCustomColor) -> AnyShapeStyle {
-    return switch style {
+    switch style {
     case .primary: AnyShapeStyle(Color.primary)
     case .secondary: AnyShapeStyle(Color.primary.secondary)
     case .tertiary: AnyShapeStyle(Color.primary.tertiary)

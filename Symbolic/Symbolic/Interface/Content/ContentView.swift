@@ -5,30 +5,29 @@
 //  Copyright © 2024 Noah Kamara.
 //
 
+import Combine
 import SFSymbolsKit
 import SwiftUI
-import Combine
-
 
 @Observable
 class AppModel {
     let repository: SymbolsRepository
-    
+
     @MainActor
     var category: SFSymbolsCategory.ID? = nil {
         didSet { triggerUpdate() }
     }
-    
+
     @MainActor
     var searchTerm: String = "" {
         didSet { triggerUpdate() }
     }
-    
+
     @MainActor
     private(set) var result: [SFSymbol] = []
-    
+
     var categories: [SFSymbolsCategory] = []
-    
+
     init(repository: SymbolsRepository) {
         self.repository = repository
         self.updateCancellable = updateSubject
@@ -42,30 +41,30 @@ class AppModel {
                     }
                 }
             }
-        
+
         Task { try await self.bootstrap() }
     }
-    
+
     private let updateSubject = PassthroughSubject<SymbolsFetchRequest, Never>()
     private var updateCancellable: (any Cancellable)!
-    
+
     private func bootstrap() async throws {
         try await update()
-        
+
         let categories = try await repository.categories()
-        
+
         await MainActor.run {
             self.categories = categories
         }
     }
-    
+
     private func update() async throws {
         let result = try await repository.symbols()
         await MainActor.run {
             didUpdateResult(result)
         }
     }
-    
+
     @MainActor
     private func triggerUpdate() {
         let request = SymbolsFetchRequest(
@@ -74,7 +73,7 @@ class AppModel {
         )
         updateSubject.send(request)
     }
-    
+
     @MainActor
     private func didUpdateResult(_ symbols: [SFSymbol]) {
         let request = SymbolsFetchRequest(
@@ -84,7 +83,6 @@ class AppModel {
         updateSubject.send(request)
     }
 }
-
 
 struct ContentView: View {
     let model: AppModel
@@ -96,8 +94,8 @@ struct ContentView: View {
     var selectedSymbols: Set<SFSymbol.ID> = []
 
     @Bindable
-    var style: SymbolStyle = SymbolStyle()
-    
+    var style: SymbolStyle = .init()
+
     @State
     private var isPresentingInspector: Bool = true
 
@@ -105,10 +103,10 @@ struct ContentView: View {
         guard let category = model.categories.first(where: { $0.key == key }) else {
             return "All Symbols"
         }
-        
+
         return category.label
     }
-    
+
     var body: some View {
         SymbolGridView(
             symbols: model.result,
@@ -151,7 +149,7 @@ struct ContentView: View {
                     .presentationDragIndicator(.hidden)
             }
             .onAppear {
-                self.selectedSymbols.insert("circle")
+                selectedSymbols.insert("circle")
             }
     }
 }
@@ -180,4 +178,3 @@ extension Set {
         }
     }
 }
-

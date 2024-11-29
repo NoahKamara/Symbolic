@@ -1,11 +1,9 @@
 //
-//  SymbolColor.swift
+//  SymbolColors.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 27.11.24.
+//  Copyright © 2024 Noah Kamara.
 //
 
-import Foundation
 import CoreGraphics
-
-
+import Foundation

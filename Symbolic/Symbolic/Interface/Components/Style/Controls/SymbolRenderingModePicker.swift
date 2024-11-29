@@ -2,7 +2,7 @@
 //  SymbolRenderingModePicker.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 26.11.24.
+//  Copyright © 2024 Noah Kamara.
 //
 
 import SwiftUI
@@ -12,10 +12,10 @@ import SwiftUI
 struct SymbolRenderingModePicker: View {
     @Binding
     var selection: SFSymbolRenderingMode
-    
+
     var body: some View {
         Picker(selection: $selection) {
-            ForEach(SFSymbolRenderingMode.allCases, id:\.self) { mode in
+            ForEach(SFSymbolRenderingMode.allCases, id: \.self) { mode in
                 Text(mode.displayName)
             }
         } label: {

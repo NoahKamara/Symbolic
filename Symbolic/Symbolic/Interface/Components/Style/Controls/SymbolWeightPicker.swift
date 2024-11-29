@@ -2,7 +2,7 @@
 //  SymbolWeightPicker.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 26.11.24.
+//  Copyright © 2024 Noah Kamara.
 //
 
 import SwiftUI
@@ -10,10 +10,10 @@ import SwiftUI
 struct SymbolWeightPicker: View {
     @Binding
     var selection: SFSymbolWeight
-    
+
     var body: some View {
         Picker(selection: $selection) {
-            ForEach(SFSymbolWeight.allCases, id:\.self) { weight in
+            ForEach(SFSymbolWeight.allCases, id: \.self) { weight in
                 Text(weight.displayName)
             }
         } label: {

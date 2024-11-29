@@ -28,7 +28,7 @@ public struct SymbolsFetchRequest: Sendable {
         self.searchTerm = searchTerm
         self.category = category
     }
-    
+
     public static let all = SymbolsFetchRequest()
 }
 
