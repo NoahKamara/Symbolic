@@ -102,8 +102,10 @@ extension SFSymbolsApp {
         let nameAvailability = try nameAvailabilityPlist()
         let layersetAvailability = try layersetAvailabilityPlist()
 
+        // generate a list of releases.
+        // we need to merge name and layerset availability
         let releases = nameAvailability.yearToRelease
-            .merging(layersetAvailability.yearToRelease, uniquingKeysWith: { name, _ in name })
+            .merging(layersetAvailability.yearToRelease, uniquingKeysWith: { first, _ in first })
             .map { SFSymbolsRelease(year: $0.key, platforms: $0.value) }
 
         try await repository.insertReleases(releases)
@@ -112,10 +114,11 @@ extension SFSymbolsApp {
         let symbols = nameAvailability
             .symbols
             .map { SFSymbol(name: $0.key, availability: $0.value) }
+        
         try await repository.insertSymbols(symbols)
 
         // Insert Layerset Availability
-        #warning("insert layerset availability")
+        #warning("insert layerset availability not yet implemented")
 
         // Symbol Categories
         let symbolCategories = try symbolCategoriesPlist()
@@ -126,7 +129,8 @@ extension SFSymbolsApp {
         try await repository.insertSymbolAliases(nameAliases)
 
         // Legacy Aliases
-        let legacyAliases = try legacyAliasesStrings().valuesAsKeys()
+//        let legacyAliases = try legacyAliasesStrings().valuesAsKeys()
+        #warning("legacyAliases not yet implemented")
     }
 }
 

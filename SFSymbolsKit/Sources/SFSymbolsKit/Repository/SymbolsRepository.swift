@@ -8,7 +8,17 @@
 import Foundation
 import GRDB
 
-public extension SymbolsFetchRequest {
+public struct SymbolsFetchRequest: Sendable {
+    public let searchTerm: String?
+    public let category: SFSymbolsCategory.ID?
+
+    public init(searchTerm: String? = nil, category: SFSymbolsCategory.ID? = nil) {
+        self.searchTerm = searchTerm
+        self.category = category
+    }
+
+    public static let all = SymbolsFetchRequest()
+
     func makeQueryInterfaceRequest() -> QueryInterfaceRequest<SFSymbol> {
         var request = SFSymbol.all()
 
@@ -24,7 +34,7 @@ enum Related {
     struct SymbolCategory {}
 }
 
-public struct SymbolsRepository: SFSymbolsRepository {
+public struct SymbolsRepository {
     private let database: DatabaseWriter
 
     public init(database: DatabaseWriter) throws {
@@ -218,7 +228,7 @@ enum Persistence {
     }
 }
 
-extension SymbolsRepository: SFSymbolsRepositoryWriter {
+extension SymbolsRepository {
     package func insertSymbols(_ symbols: [SFSymbol]) async throws {
         try await database.write { db in
             for symbol in symbols {

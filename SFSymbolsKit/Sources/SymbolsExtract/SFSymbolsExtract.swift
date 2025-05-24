@@ -16,7 +16,7 @@ struct SFSymbolsExtract: AsyncParsableCommand {
     var output: String = "./symbols.sqlite"
 
     @Option
-    var inMemory: Bool = false
+    var inMemory: Bool = true
 
     @Option(completion: .file(extensions: ["app"]))
     var app: String = "/Applications/SF Symbols.app"
