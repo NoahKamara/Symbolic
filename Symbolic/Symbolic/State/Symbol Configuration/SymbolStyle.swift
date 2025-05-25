@@ -44,7 +44,6 @@ struct Style: DynamicProperty {
         if let style {
             return style
         } else {
-
             print("Missing")
             return SymbolStyle()
         }

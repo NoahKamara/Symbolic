@@ -2,7 +2,7 @@
 //  SymbolBackgroundPicker.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
 
 import SwiftUI

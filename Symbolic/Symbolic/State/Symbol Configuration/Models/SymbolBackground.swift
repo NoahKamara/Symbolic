@@ -2,17 +2,17 @@
 //  SymbolBackground.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
 
 import CoreGraphics
 
 struct SymbolBackground: Codable {
     static let defaultCustomColor = CGColor(red: 1, green: 1, blue: 1, alpha: 1)
-    
+
     var style: SymbolBackgroundStyle
     var customColor: CGColor
-    
+
     init(
         style: SymbolBackgroundStyle = .default,
         customColor: CGColor = defaultCustomColor
@@ -20,7 +20,7 @@ struct SymbolBackground: Codable {
         self.style = style
         self.customColor = customColor
     }
-    
+
     func encode(to encoder: any Encoder) throws {
         try StyleOrColor.encode(
             style: style,
@@ -39,7 +39,7 @@ struct SymbolBackground: Codable {
             defaultColor: Self.defaultCustomColor,
             from: decoder
         )
-        
+
         self.init(style: style, customColor: color)
     }
 }

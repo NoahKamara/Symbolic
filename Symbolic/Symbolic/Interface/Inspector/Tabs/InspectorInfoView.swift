@@ -1,5 +1,5 @@
 //
-//  InspectorInfoTabView.swift
+//  InspectorInfoView.swift
 //  Symbolic
 //
 //  Copyright © 2024 Noah Kamara.

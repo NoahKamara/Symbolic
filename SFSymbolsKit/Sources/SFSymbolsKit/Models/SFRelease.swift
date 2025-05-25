@@ -1,10 +1,9 @@
 //
 //  SFRelease.swift
-//  SFSymbolsKit
+//  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
-
 
 public struct SFRelease: SFModel {
     public typealias Year = String
@@ -59,7 +58,7 @@ public struct PlatformVersions: Codable, Sendable {
     public let macOS: SemanticVersion
     public let visionOS: SemanticVersion
     public let watchOS: SemanticVersion
-    
+
     public init(
         iOS: SemanticVersion,
         macOS: SemanticVersion,

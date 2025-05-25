@@ -13,7 +13,7 @@ struct SymbolColorPicker: View {
 
     @FocusState
     var opacityHasFocus: Bool
-    
+
     var body: some View {
         Menu {
             Picker(selection: $selection.style) {
@@ -64,7 +64,7 @@ struct SymbolColorPicker: View {
                     .foregroundStyle(.clear)
                     .padding(.horizontal, 1)
                     .fixedSize()
-                    
+
                 TextField("", value: .constant(0.5), format: .percent, prompt: Text("100%"))
                     .labelsHidden()
                     .lineLimit(1)
@@ -73,7 +73,6 @@ struct SymbolColorPicker: View {
                     .onSubmit {
                         opacityHasFocus = false
                     }
-                
             }
             .multilineTextAlignment(.center)
             .disabled(selection.style == .custom)
@@ -92,12 +91,11 @@ struct SymbolColorPicker: View {
     }
 }
 
-
 #Preview("SymbolColorPicker: Component") {
     @Previewable @State var hierarchical = SymbolColor(style: .primary)
     @Previewable @State var styleColor = SymbolColor(style: .blue)
     @Previewable @State var customColor = SymbolColor(style: .custom)
-    
+
     Form {
         SymbolColorPicker(selection: $hierarchical)
         SymbolColorPicker(selection: $styleColor)

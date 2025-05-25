@@ -64,4 +64,3 @@ struct SidebarView: View {
         selection: $selection
     )
 }
-

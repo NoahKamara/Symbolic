@@ -39,4 +39,3 @@ struct InspectorSymbolPreview: View {
             .frame(height: 240)
     }
 }
-

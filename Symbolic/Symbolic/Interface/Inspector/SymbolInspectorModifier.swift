@@ -2,22 +2,22 @@
 //  SymbolInspectorModifier.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
 
-import SwiftUI
 import SFSymbolsKit
+import SwiftUI
 
 struct SymbolInspectorModifier: ViewModifier {
     @Binding
     var isPresenting: Bool
-    
+
     @Binding
     var selection: Set<SFSymbol.Name>
-    
+
     @Style
     private var style
-    
+
     func body(content: Content) -> some View {
         content
             .inspector(isPresented: $isPresenting) {

@@ -26,10 +26,10 @@ struct SFSymbolsExtract: AsyncParsableCommand {
 
         if !inMemory {
             let fm = FileManager.default
-            
+
             if fm.fileExists(atPath: output) {
                 print("File \(output) already exists. Overwrite? [y/N]:")
-                
+
                 if readLine(strippingNewline: true).map({ $0.lowercased() == "y" }) ?? false {
                     print("Overriding existing file...")
                     try fm.removeItem(atPath: output)
@@ -39,14 +39,12 @@ struct SFSymbolsExtract: AsyncParsableCommand {
                 }
             }
         }
-        
+
         let repository = if inMemory {
             try SFSymbolsRepository(database: DatabaseQueue())
         } else {
             try SFSymbolsRepository(at: output)
         }
-        
-    
 
         try await app.extract(into: repository)
     }

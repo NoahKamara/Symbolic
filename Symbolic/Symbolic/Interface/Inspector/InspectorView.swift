@@ -37,10 +37,10 @@ struct InspectorView: View {
                 switch tab {
                 case .info:
                     InspectorInfoView(selection: selection)
-                    
+
                 case .style:
                     InspectorStyleView(style: style, selection: selection)
-                    
+
                 case .animate:
                     InspectorInfoView(selection: selection)
                 }

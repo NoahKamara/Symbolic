@@ -1,10 +1,9 @@
 //
-//  SFSymbolRenderingMode.swift
+//  SymbolRenderingMode.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
-
 
 enum SymbolRenderingMode: CaseIterable, Hashable, Codable {
     case monochrome
@@ -12,4 +11,3 @@ enum SymbolRenderingMode: CaseIterable, Hashable, Codable {
     case palette
     case multicolor
 }
-

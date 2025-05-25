@@ -15,7 +15,7 @@ struct MainView: View {
     var body: some View {
         NavigationSplitView {
             SidebarView(categories: model.categories, selection: $model.category)
-            .navigationSplitViewColumnWidth(250)
+                .navigationSplitViewColumnWidth(250)
         } detail: {
             ContentView(model: model)
         }

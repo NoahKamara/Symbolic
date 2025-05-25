@@ -12,5 +12,4 @@ public protocol SFModel: Sendable, Codable, FetchableRecord, PersistableRecord {
     typealias RowID = Int64
 }
 
-
 public protocol SFRelation: Sendable, Codable, FetchableRecord, PersistableRecord {}

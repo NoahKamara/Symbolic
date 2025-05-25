@@ -2,9 +2,8 @@
 //  SymbolWeight.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
-
 
 enum SymbolWeight: CaseIterable, Hashable, Codable {
     case ultralight

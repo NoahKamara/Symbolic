@@ -2,7 +2,7 @@
 //  SymbolColor.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
 
 import CoreGraphics
@@ -37,12 +37,12 @@ struct SymbolColor: Codable {
 
     init(from decoder: any Decoder) throws {
         let (style, color) = try StyleOrColor.decode(
-            style: Optional<SymbolColorStyle>.self,
+            style: SymbolColorStyle?.self,
             defaultStyle: .none,
             defaultColor: Self.defaultCustomColor,
             from: decoder
         )
-        
+
         self.init(style: style, customColor: color)
     }
 }
@@ -69,7 +69,7 @@ enum SymbolColorStyle: Hashable, Codable, CustomStringConvertible {
     case quaternary
     case accent
     case custom
-    
+
     var description: String {
         switch self {
         case .red: "red"

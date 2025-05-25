@@ -27,7 +27,7 @@ public struct SymbolImage: View {
     }
 }
 
-fileprivate struct SymbolForegroundStyle: ViewModifier {
+private struct SymbolForegroundStyle: ViewModifier {
     var primaryColor: SymbolColor
     var secondaryColor: SymbolColor
     var tertiaryColor: SymbolColor
@@ -35,16 +35,16 @@ fileprivate struct SymbolForegroundStyle: ViewModifier {
     func body(content: Content) -> some View {
         Group {
             switch (primaryColor.style, secondaryColor.style, tertiaryColor.style) {
-            case let (.some(primary), .none, .none):
+            case (.some(let primary), .none, .none):
                 content
                     .foregroundStyle(symbolColor(primary, customColor: primaryColor.customColor))
-            case let (.some(primary), .some(secondary), .none):
+            case (.some(let primary), .some(let secondary), .none):
                 content
                     .foregroundStyle(
                         symbolColor(primary, customColor: primaryColor.customColor),
                         symbolColor(secondary, customColor: secondaryColor.customColor)
                     )
-            case let (.some(primary), .some(secondary), .some(tertiary)):
+            case (.some(let primary), .some(let secondary), .some(let tertiary)):
                 content
                     .foregroundStyle(
                         symbolColor(primary, customColor: primaryColor.customColor),
@@ -63,12 +63,11 @@ fileprivate struct SymbolForegroundStyle: ViewModifier {
         .environment(SymbolStyle())
 }
 
-
 #Preview {
     @Previewable
     @Bindable
     var style = SymbolStyle()
-    
+
     List {
         InspectorStyleView(style: style, selection: ["paintpalette.fill"])
             .environment(SymbolStyle())

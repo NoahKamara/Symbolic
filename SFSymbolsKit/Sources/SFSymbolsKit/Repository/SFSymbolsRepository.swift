@@ -41,11 +41,11 @@ public struct SFSymbolsRepository {
         let isInitialized = try database.read { db in
             try db.tableExists("symbols")
         }
-        
-        if !isInitialized && createIfMissing {
+
+        if !isInitialized, createIfMissing {
             try Self.migrator.migrate(database)
         }
-        
+
         self.database = database
     }
 
@@ -132,26 +132,27 @@ public extension SFSymbolsRepository {
                 t.column("visionOS", .text)
                 t.column("watchOS", .text)
             }
-            
+
             try db.create(table: SFSymbol.databaseTableName) { t in
                 t.autoIncrementedPrimaryKey("id")
                 t.column("name", .text).notNull().unique()
                 t.column("introducedId", .integer)
             }
-            
+
             try db.create(table: SFCategory.databaseTableName) { t in
                 t.autoIncrementedPrimaryKey("id")
                 t.column("key", .text).unique()
                 t.column("label", .text)
                 t.column("icon", .text)
             }
-            
+
             try db.create(table: SFLayerset.databaseTableName) { t in
                 t.autoIncrementedPrimaryKey("id")
                 t.column("name", .text).unique()
             }
-            
+
             // MARK: Aliases
+
             try db.create(table: SFSymbolCategory.databaseTableName) { t in
                 t
                     .column("symbolId", .integer)
@@ -162,7 +163,7 @@ public extension SFSymbolsRepository {
                     .notNull()
                     .references(SFCategory.databaseTableName, onDelete: .cascade)
             }
-            
+
             try db.create(table: SFLayersetAvailability.databaseTableName) { t in
                 t
                     .column("symbolId", .integer)
@@ -177,8 +178,9 @@ public extension SFSymbolsRepository {
                     .notNull()
                     .references(SFRelease.databaseTableName, onDelete: .cascade)
             }
-            
+
             // MARK: Search
+
             try db.create(virtualTable: SFSymbolSearchRecord.databaseTableName, using: FTS5()) { t in
                 t.column("id").notIndexed()
                 t.column("name")
@@ -195,8 +197,6 @@ public extension SFSymbolsRepository {
 //                t.column("alias", .text).notNull()
 //            }
 //        }
-        
-        
 
         return migrator
     }()
@@ -251,4 +251,3 @@ enum Persistence {
         let legacy: Bool
     }
 }
-

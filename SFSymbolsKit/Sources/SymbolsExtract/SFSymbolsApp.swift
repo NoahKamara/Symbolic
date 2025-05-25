@@ -20,7 +20,7 @@ struct SFSymbolsApp {
     }
 
     private func load(_ file: String) throws -> Data {
-        return try Data(contentsOf: metadataDirectory.appending(component: file))
+        try Data(contentsOf: metadataDirectory.appending(component: file))
     }
 
     private func loadPlist<T: Decodable>(_ file: String, as type: T.Type = T.self) throws -> T {
@@ -91,7 +91,6 @@ struct SFSymbolsApp {
 
 // MARK: Extractor
 
-
 extension SFSymbolsApp {
     func extract(into repository: SFSymbolsRepository) async throws {
         print("Extraingig Symbols from \(metadataDirectory.path(percentEncoded: false))")
@@ -118,17 +117,17 @@ extension SFSymbolsApp {
             .reduce(Set<String>()) { layersets, map in
                 layersets.union(map.keys)
             }
-            .map({
+            .map {
                 SFLayerset(name: $0)
-            })
-        
+            }
+
         let layersetIds = try await repository.insertLayersets(layersets)
-        
+
         // Symbols
         let symbols: [SFSymbol] = nameAvailability
             .symbols
-            .map { (name, releaseYear) in
-                return SFSymbol(
+            .map { name, releaseYear in
+                SFSymbol(
                     name: name,
                     introducedId: releaseIds[releaseYear]!
                 )
@@ -139,21 +138,21 @@ extension SFSymbolsApp {
         // Symbol Categories
         let symbolCategoriesPlist = try symbolCategoriesPlist()
 
-        let symbolCategories = symbolCategoriesPlist.flatMap { (symbolName, categoryKeys) in
+        let symbolCategories = symbolCategoriesPlist.flatMap { symbolName, categoryKeys in
             let symbolId = symbolIds[symbolName]!
 
-            return categoryKeys.map({ categoryKey in
+            return categoryKeys.map { categoryKey in
                 let categoryId = categoryIds[categoryKey]!
                 return SFSymbolCategory(symbolId: symbolId, categoryId: categoryId)
-            })
+            }
         }
         try await repository.insertSymbolCategories(symbolCategories)
 
         // Insert Symbol Layerset Availability
-        let layersetAvailabilities = layersetAvailability.symbols.flatMap { (symbol, layersets) in
+        let layersetAvailabilities = layersetAvailability.symbols.flatMap { symbol, layersets in
             let symbolId = symbolIds[symbol]!
-            
-            return layersets.map { (layerset, year) in
+
+            return layersets.map { layerset, year in
                 SFLayersetAvailability(
                     symbolId: symbolId,
                     layersetId: layersetIds[layerset]!,
@@ -161,12 +160,12 @@ extension SFSymbolsApp {
                 )
             }
         }
-        
+
         try await repository.insertLayersetAvailabilities(layersetAvailabilities)
 
         // Search
         let aliasesForName = nameAliases.valuesAsKeys()
-        let searchRecords = symbolIds.map { (symbolName, symbolId) in
+        let searchRecords = symbolIds.map { symbolName, symbolId in
             SFSymbolSearchRecord(
                 id: symbolId,
                 name: symbolName,
@@ -174,9 +173,9 @@ extension SFSymbolsApp {
                 keywords: symbolSearch[symbolName] ?? []
             )
         }
-        
+
         try await repository.insertSearchRecords(searchRecords)
-        
+
         //        // Aliases
         //        let nameAliases = try nameAliasesStrings().valuesAsKeys()
         //        try await repository.insertSymbolAliases(nameAliases)
@@ -193,8 +192,8 @@ extension SFSymbolsApp {
     }
 }
 
-extension Dictionary where Value: Hashable {
-    fileprivate func valuesAsKeys() -> [Value: [Key]] {
+private extension Dictionary where Value: Hashable {
+    func valuesAsKeys() -> [Value: [Key]] {
         reduce(into: [Value: [Key]]()) { result, element in
             var existing = result[element.value] ?? []
 

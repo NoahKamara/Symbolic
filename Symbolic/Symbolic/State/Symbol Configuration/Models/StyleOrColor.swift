@@ -2,11 +2,11 @@
 //  StyleOrColor.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 
 /// A utility for encoding and decoding types that carry style and optional color information
 enum StyleOrColor {
@@ -14,7 +14,7 @@ enum StyleOrColor {
         case style
         case color
     }
-    
+
     /// Encodes style and color information
     ///
     /// - Parameters:
@@ -38,13 +38,13 @@ enum StyleOrColor {
             try container.encodeNil()
             return
         }
-        
+
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(style, forKey: .style)
-        
+
         // if the color is default we omit it
         guard color != defaultColor else { return }
-        
+
         guard let hexColor = color.toHex() else {
             throw EncodingError.invalidValue(color, .init(
                 codingPath: container.codingPath + [CodingKeys.color],
@@ -54,9 +54,9 @@ enum StyleOrColor {
 
         try container.encode(hexColor, forKey: .style)
     }
-    
+
     /// Decoes style and color information
-    /// 
+    ///
     /// - Parameters:
     ///   - style: style that should be decoded
     ///   - defaultStyle: the default style if the encoded value is nil
@@ -72,29 +72,28 @@ enum StyleOrColor {
         do {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             let style = try container.decode(Style.self, forKey: .style)
-            
+
             guard let hexColor = try container.decodeIfPresent(String.self, forKey: .color) else {
                 return (style: style, color: defaultColor)
             }
-                    
+
             guard let color = CGColor.fromHexString(hexColor) else {
                 throw DecodingError.dataCorrupted(.init(
-                    codingPath: decoder.codingPath+[CodingKeys.color],
+                    codingPath: decoder.codingPath + [CodingKeys.color],
                     debugDescription: "Could not convert (Hex) String '\(hexColor)' to CGColor"
                 ))
             }
-            
+
             return (style: style, color: color)
         } catch {
             if (try? decoder.singleValueContainer().decodeNil()) == true {
                 return (style: defaultStyle, color: defaultColor)
             }
-            
+
             throw error
         }
     }
 }
-
 
 private extension CGColor {
     func toHex() -> String? {

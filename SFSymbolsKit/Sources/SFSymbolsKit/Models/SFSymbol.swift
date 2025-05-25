@@ -1,10 +1,9 @@
 //
 //  SFSymbol.swift
-//  SFSymbolsKit
+//  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
-
 
 public struct SFSymbol: SFModel {
     public typealias Name = String

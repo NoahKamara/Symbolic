@@ -1,8 +1,8 @@
 //
-//  File.swift
-//  SFSymbolsKit
+//  SymbolsRepository+Insert.swift
+//  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
 
 import SFSymbolsKit
@@ -73,7 +73,7 @@ extension SFSymbolsRepository {
             }
         }
     }
-    
+
     func insertSearchRecords(
         _ searchRecords: [SFSymbolSearchRecord]
     ) async throws {
@@ -83,7 +83,7 @@ extension SFSymbolsRepository {
             }
         }
     }
-    
+
     func insertSymbolAliases(legacy: Bool = false, _ nameAliases: [String: [String]]) async throws {
         try await database.write { db in
             for (symbolName, aliases) in nameAliases {
@@ -97,7 +97,6 @@ extension SFSymbolsRepository {
         }
     }
 }
-
 
 struct Reference: SFModel {
     let id: RowID

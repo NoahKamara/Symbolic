@@ -1,10 +1,9 @@
 //
 //  SFCategory.swift
-//  SFSymbolsKit
+//  Symbolic
 //
-//  Created by Noah Kamara on 25.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
-
 
 public struct SFCategory: SFModel, Hashable {
     public typealias Key = String
@@ -23,10 +22,10 @@ public struct SFCategory: SFModel, Hashable {
 
 public struct SFSymbolCategory: SFModel {
     public static let databaseTableName = "symbol_categories"
-    
+
     public let symbolId: SFSymbol.RowID
     public let categoryId: SFCategory.RowID
-    
+
     public init(symbolId: SFSymbol.RowID, categoryId: SFCategory.RowID) {
         self.symbolId = symbolId
         self.categoryId = categoryId

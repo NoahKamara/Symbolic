@@ -11,7 +11,7 @@ struct TileView<Content: View>: View {
     let background: SymbolBackground
     @ViewBuilder
     var content: Content
-    
+
     var body: some View {
         ZStack {
             ContainerRelativeShape()
@@ -32,7 +32,7 @@ func symbolBackground(_ background: SymbolBackground) -> AnyShapeStyle {
 #else
     let textBackground = Color(.systemBackground)
 #endif
-    
+
     return switch background.style {
     case .default: AnyShapeStyle(textBackground)
     case .light: AnyShapeStyle(textBackground.resolve(in: .light))
@@ -41,13 +41,13 @@ func symbolBackground(_ background: SymbolBackground) -> AnyShapeStyle {
     }
 }
 
-fileprivate extension EnvironmentValues {
+private extension EnvironmentValues {
     static var light: EnvironmentValues {
         var values = EnvironmentValues()
         values.colorScheme = .light
         return values
     }
-    
+
     static var dark: EnvironmentValues {
         var values = EnvironmentValues()
         values.colorScheme = .dark

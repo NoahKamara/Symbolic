@@ -2,7 +2,7 @@
 //  EnvironmentView.swift
 //  Symbolic
 //
-//  Created by Noah Kamara on 26.05.2025.
+//  Copyright © 2024 Noah Kamara.
 //
 
 import SwiftUI
@@ -16,8 +16,7 @@ struct EnvironmentView<Value: AnyObject & Observable, Content: View>: View {
 
     init(
         of _: Value.Type = Value.self,
-        @ViewBuilder
-        content: @escaping (Value) -> Content
+        @ViewBuilder content: @escaping (Value) -> Content
     ) {
         self.content = content
     }

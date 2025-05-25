@@ -1,5 +1,5 @@
 //
-//  DetailView.swift
+//  ContentView.swift
 //  Symbolic
 //
 //  Copyright © 2024 Noah Kamara.
@@ -14,7 +14,7 @@ class AppModel {
     let repository: SFSymbolsRepository
 
     let style = SymbolStyle()
-    
+
     @MainActor
     var category: SFCategory.Key? = nil {
         didSet { triggerUpdate() }
@@ -26,7 +26,7 @@ class AppModel {
     }
 
     var isShowingSidebar: Bool = false
-    
+
     var selectedSymbols: Set<SFSymbol.Name> = []
 
     @MainActor
@@ -60,7 +60,7 @@ class AppModel {
         try await update()
 
         let categories = try await repository.categories()
-        
+
         await MainActor.run {
             self.categories = categories
         }
@@ -108,10 +108,10 @@ struct ContentView: View {
 
     @Style
     var style
-    
+
     @State
     private var availableWidth: CGFloat = 0
-    
+
     var body: some View {
         SymbolGridView(
             symbols: model.result,
@@ -119,23 +119,22 @@ struct ContentView: View {
         )
         .navigationTitle(categoryLabel(forKey: model.category ?? "all"))
 #if os(macOS)
-        .navigationSubtitle(Text("\(model.result.count) Symbols"))
+            .navigationSubtitle(Text("\(model.result.count) Symbols"))
 #endif
-        .onChange(of: isPresentingInspector) { _, newValue in
-            model.isShowingSidebar = !newValue
-        }
-        // Inspector
-        .modifier(
-            SymbolInspectorModifier(
-                isPresenting: $isPresentingInspector,
-                selection: $model.selectedSymbols
+            .onChange(of: isPresentingInspector) { _, newValue in
+                model.isShowingSidebar = !newValue
+            }
+            // Inspector
+            .modifier(
+                SymbolInspectorModifier(
+                    isPresenting: $isPresentingInspector,
+                    selection: $model.selectedSymbols
+                )
             )
-        )
-        // Toolbar
-        .modifier(ContentToolbar(style: style))
+            // Toolbar
+            .modifier(ContentToolbar(style: style))
     }
 }
-
 
 #Preview(traits: .previewApp) {
     EnvironmentView { model in

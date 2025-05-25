@@ -17,7 +17,7 @@ struct SymbolGridView: View {
         ScrollView {
             LazyVGrid(
                 columns: [
-                    .init(.adaptive(minimum: 100, maximum: 140))
+                    .init(.adaptive(minimum: 100, maximum: 140)),
                 ],
                 spacing: 10
             ) {
