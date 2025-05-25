@@ -89,7 +89,7 @@ class AppModel {
     }
 }
 
-struct DetailView: View {
+struct ContentView: View {
     @Bindable
     var model: AppModel
 
@@ -160,7 +160,7 @@ struct Style: DynamicProperty {
 #Preview {
     @Previewable let model = AppModel(repository: try! SFSymbolsRepository())
     NavigationStack {
-        DetailView(model: model)
+        ContentView(model: model)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .environment(SymbolStyle())

@@ -20,7 +20,7 @@ struct MainView: View {
             SidebarView(categories: model.categories, selection: $model.category)
             .navigationSplitViewColumnWidth(250)
         } detail: {
-            DetailView(model: model)
+            ContentView(model: model)
         }
         .navigationSplitViewStyle(.balanced)
         .environment(style)
