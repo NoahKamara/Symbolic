@@ -13,6 +13,8 @@ import SwiftUI
 class AppModel {
     let repository: SFSymbolsRepository
 
+    let style = SymbolStyle()
+    
     @MainActor
     var category: SFCategory.Key? = nil {
         didSet { triggerUpdate() }
@@ -104,7 +106,7 @@ struct ContentView: View {
         return category.label
     }
 
-    @Environment(SymbolStyle.self)
+    @Style
     var style
     
     @State

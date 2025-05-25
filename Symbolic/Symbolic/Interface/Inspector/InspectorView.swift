@@ -36,13 +36,13 @@ struct InspectorView: View {
             Group {
                 switch tab {
                 case .info:
-                    InfoTab(selection: selection)
+                    InspectorInfoView(selection: selection)
                     
                 case .style:
-                    StyleTab(style: style, selection: selection)
+                    InspectorStyleView(style: style, selection: selection)
                     
                 case .animate:
-                    InfoTab(selection: selection)
+                    InspectorInfoView(selection: selection)
                 }
             }
             .listRowSeparator(.hidden)

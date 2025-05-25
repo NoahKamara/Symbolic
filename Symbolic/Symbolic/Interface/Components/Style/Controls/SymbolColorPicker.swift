@@ -92,19 +92,17 @@ struct SymbolColorPicker: View {
     }
 }
 
-#Preview {
+
+#Preview("SymbolColorPicker: Component") {
     @Previewable @State var hierarchical = SymbolColor(style: .primary)
     @Previewable @State var styleColor = SymbolColor(style: .blue)
     @Previewable @State var customColor = SymbolColor(style: .custom)
-
-    Text("Hello World")
-        .inspector(isPresented: .constant(true)) {
-            Form {
-                SymbolColorPicker(selection: $hierarchical)
-                SymbolColorPicker(selection: $styleColor)
-                SymbolColorPicker(selection: $customColor)
-            }
-        }
+    
+    Form {
+        SymbolColorPicker(selection: $hierarchical)
+        SymbolColorPicker(selection: $styleColor)
+        SymbolColorPicker(selection: $customColor)
+    }
 }
 
 // MARK: StyleLabelView
@@ -245,12 +243,6 @@ extension SymbolColor.Style {
     var isColor: Bool { Self.colors.contains(self) }
     var isOther: Bool { Self.others.contains(self) }
     var isHierarchical: Bool { Self.hierarchical.contains(self) }
-}
-
-extension Optional {
-    var isNil: Bool {
-        if case .none = self { true } else { false }
-    }
 }
 
 extension SymbolColorStyle? {

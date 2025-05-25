@@ -10,15 +10,21 @@ import SwiftUI
 struct SymbolGridItemView: View {
     let name: String
     let isSelected: Bool
+    @Style
+    private var style
 
     var body: some View {
         VStack(spacing: 2) {
-            SymbolTileView(name: name)
-                .overlay {
-                    ContainerRelativeShape()
-                        .stroke(isSelected ? Color.accentColor : .clear, lineWidth: 3)
-                }
-                .frame(width: 100)
+            TileView {
+                SymbolImage(name: name)
+                    .font(.system(size: 30))
+            }
+            .aspectRatio(4 / 3, contentMode: .fit)
+            .overlay {
+                ContainerRelativeShape()
+                    .stroke(isSelected ? Color.accentColor : .clear, lineWidth: 3)
+            }
+            .frame(width: 100)
 
             Text(name.forceDotWrapping)
                 .multilineTextAlignment(.center)

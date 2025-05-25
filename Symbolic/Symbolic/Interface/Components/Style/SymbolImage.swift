@@ -10,44 +10,42 @@ import SwiftUI
 public struct SymbolImage: View {
     let name: String
 
-    @Environment(SymbolStyle.self)
-    var style: SymbolStyle?
-    private var fallbackStyle: SymbolStyle { style ?? .init() }
+    @Style
+    private var style: SymbolStyle
 
     public var body: some View {
         Image(systemName: name)
-            .fontWeight(fallbackStyle.weight.toFontWeight())
-            .symbolRenderingMode(fallbackStyle.rendering.toSymbolRenderingMode())
-            .font(.system(size: 30))
-            .modifier(SymbolForegroundStyle(colors: fallbackStyle.colors))
-            .onAppear {
-                if style == nil {
-                    print("style was not set, using default")
-                }
-            }
+            .fontWeight(style.weight.toFontWeight())
+            .symbolRenderingMode(style.rendering.toSymbolRenderingMode())
+//            .font(.system(size: 30))
+            .modifier(SymbolForegroundStyle(colors: style.colors))
     }
 }
 
-struct SymbolForegroundStyle: ViewModifier {
+fileprivate struct SymbolForegroundStyle: ViewModifier {
     let colors: SymbolColors
 
     func body(content: Content) -> some View {
-        if let primary = colors.primary.style,
-           let secondary = colors.secondary.style
-        {
-            if let tertiary = colors.tertiary.style {
+        Group {
+            switch (colors.primary.style, colors.secondary.style, colors.tertiary.style) {
+            case let (.some(primary), .none, .none):
+                content
+                    .foregroundStyle(symbolColor(primary, customColor: colors.primary.customColor))
+            case let (.some(primary), .some(secondary), .none):
+                content
+                    .foregroundStyle(
+                        symbolColor(primary, customColor: colors.primary.customColor),
+                        symbolColor(secondary, customColor: colors.secondary.customColor)
+                    )
+            case let (.some(primary), .some(secondary), .some(tertiary)):
                 content
                     .foregroundStyle(
                         symbolColor(primary, customColor: colors.primary.customColor),
                         symbolColor(secondary, customColor: colors.secondary.customColor),
                         symbolColor(tertiary, customColor: colors.tertiary.customColor)
                     )
-            } else {
+            default:
                 content
-                    .foregroundStyle(
-                        symbolColor(primary, customColor: colors.primary.customColor),
-                        symbolColor(secondary, customColor: colors.secondary.customColor)
-                    )
             }
         }
     }
@@ -56,6 +54,18 @@ struct SymbolForegroundStyle: ViewModifier {
 #Preview {
     SymbolImage(name: "paintpalette.fill")
         .environment(SymbolStyle())
+}
+
+
+#Preview {
+    @Previewable
+    @Bindable
+    var style = SymbolStyle()
+    
+    List {
+        InspectorStyleView(style: style, selection: ["paintpalette.fill"])
+            .environment(SymbolStyle())
+    }
 }
 
 func symbolColor(_ style: SymbolColor.Style, customColor: CGColor = SymbolColor.defaultCustomColor) -> AnyShapeStyle {

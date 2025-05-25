@@ -127,7 +127,7 @@ struct SymbolColor: Codable {
     }
 }
 
-enum SymbolColorStyle: Hashable, Codable {
+enum SymbolColorStyle: Hashable, Codable, CustomStringConvertible {
     case red
     case orange
     case yellow
@@ -149,6 +149,32 @@ enum SymbolColorStyle: Hashable, Codable {
     case quaternary
     case accent
     case custom
+    
+    var description: String {
+        switch self {
+        case .red: "red"
+        case .orange: "orange"
+        case .yellow: "yellow"
+        case .green: "green"
+        case .mint: "mint"
+        case .teal: "teal"
+        case .cyan: "cyan"
+        case .blue: "blue"
+        case .indigo: "indigo"
+        case .purple: "purple"
+        case .pink: "pink"
+        case .brown: "brown"
+        case .white: "white"
+        case .gray: "gray"
+        case .black: "black"
+        case .primary: "primary"
+        case .secondary: "secondary"
+        case .tertiary: "tertiary"
+        case .quaternary: "quaternary"
+        case .accent: "accent"
+        case .custom: "custom"
+        }
+    }
 }
 
 private extension CGColor {

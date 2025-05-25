@@ -12,9 +12,6 @@ struct MainView: View {
     @Bindable
     var model: AppModel
 
-    @Bindable
-    var style: SymbolStyle = .init()
-    
     var body: some View {
         NavigationSplitView {
             SidebarView(categories: model.categories, selection: $model.category)
@@ -22,8 +19,8 @@ struct MainView: View {
         } detail: {
             ContentView(model: model)
         }
+        .environment(model.style)
         .navigationSplitViewStyle(.balanced)
-        .environment(style)
         .task {
             do {
                 try await model.bootstrap()
