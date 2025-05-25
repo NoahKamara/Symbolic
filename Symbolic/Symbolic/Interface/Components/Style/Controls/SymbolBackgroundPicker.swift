@@ -22,7 +22,12 @@ struct SymbolBackgroundPicker: View {
             .labelsHidden()
             .pickerStyle(.inline)
         } label: {
-            StyleLabelView(selection.style, customColor: selection.customColor)
+            Label {
+                Text(selection.style.displayName)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } icon: {
+                ColorView(style: selection.style, customColor: selection.customColor)
+            }
         }
         .safeAreaInset(edge: .trailing) {
             if case .custom = selection.style {

@@ -12,12 +12,12 @@ import SwiftUI
 class SymbolStyle: Codable {
     var weight: SymbolWeight = .regular
     var renderingMode: SymbolRenderingMode = .monochrome
-    
+
     var primaryColor: SymbolColor
     var secondaryColor: SymbolColor
     var tertiaryColor: SymbolColor
     var background: SymbolBackground
-    
+
     public init(
         weight: SymbolWeight = .regular,
         renderingMode: SymbolRenderingMode = .monochrome,
@@ -32,5 +32,21 @@ class SymbolStyle: Codable {
         self.secondaryColor = secondaryColor
         self.tertiaryColor = tertiaryColor
         self.background = backgroundStyle
+    }
+}
+
+@propertyWrapper
+struct Style: DynamicProperty {
+    @Environment(SymbolStyle.self)
+    private var style: SymbolStyle?
+
+    var wrappedValue: SymbolStyle {
+        if let style {
+            return style
+        } else {
+
+            print("Missing")
+            return SymbolStyle()
+        }
     }
 }

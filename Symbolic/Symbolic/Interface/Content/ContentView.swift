@@ -124,63 +124,25 @@ struct ContentView: View {
         .onChange(of: isPresentingInspector) { _, newValue in
             model.isShowingSidebar = !newValue
         }
+        // Inspector
         .modifier(
             SymbolInspectorModifier(
                 isPresenting: $isPresentingInspector,
                 selection: $model.selectedSymbols
             )
         )
-        .toolbar {
-            @Bindable var style = self.style
-            
-            ToolbarItem(id: "weight-picker", placement: .primaryAction) {
-                SymbolWeightPicker(selection: $style.weight)
-            }
-            ToolbarItem(id: "rendering-mode-picker", placement: .primaryAction) {
-                SymbolRenderingModePicker(selection: $style.renderingMode)
-            }
+        // Toolbar
+        .modifier(ContentToolbar(style: style))
+    }
+}
+
+
+#Preview(traits: .previewApp) {
+    EnvironmentView { model in
+        NavigationStack {
+            ContentView(model: model)
         }
-    }
-}
-
-@propertyWrapper
-struct Style: DynamicProperty {
-    @Environment(SymbolStyle.self)
-    private var style: SymbolStyle?
-    
-    var wrappedValue: SymbolStyle {
-        if let style {
-            return style
-        } else {
-            
-            print("Missing")
-            return SymbolStyle()
-        }
-    }
-}
-
-#Preview {
-    @Previewable let model = AppModel(repository: try! SFSymbolsRepository())
-    NavigationStack {
-        ContentView(model: model)
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .environment(SymbolStyle())
-}
-
-extension String {
-    var forceDotWrapping: Self {
-        components(separatedBy: .punctuationCharacters)
-            .joined(separator: "\u{200B}.")
-    }
-}
-
-extension Set {
-    mutating func toggle(_ member: Element) {
-        if contains(member) {
-            remove(member)
-        } else {
-            insert(member)
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .environment(SymbolStyle())
     }
 }

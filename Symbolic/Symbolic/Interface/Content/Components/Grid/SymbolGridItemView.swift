@@ -42,3 +42,10 @@ struct SymbolGridItemView: View {
         SymbolGridItemView(name: "circle.fill", isSelected: true)
     }
 }
+
+extension String {
+    var forceDotWrapping: Self {
+        components(separatedBy: .punctuationCharacters)
+            .joined(separator: "\u{200B}.")
+    }
+}
