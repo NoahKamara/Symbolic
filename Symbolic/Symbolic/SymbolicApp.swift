@@ -10,7 +10,7 @@ import SwiftUI
 
 @main
 struct SymbolicApp: App {
-    let model = AppModel(repository: try! SymbolsRepository())
+    let model = AppModel(repository: try! SFSymbolsRepository())
 
     var body: some Scene {
         WindowGroup {

@@ -6,7 +6,7 @@
 //
 
 
-public struct SFCategory: SFModel {
+public struct SFCategory: SFModel, Hashable {
     public typealias Key = String
     public static let databaseTableName = "categories"
 

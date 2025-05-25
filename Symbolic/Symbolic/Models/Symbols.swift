@@ -17,12 +17,12 @@ class Symbols {
     let repository: SFSymbolsRepository
 
     @MainActor
-    var category: SFSymbolsCategory.ID? = "all" {
+    var category: SFCategory.Key? = "all" {
         didSet { triggerUpdate() }
     }
 
     @MainActor
-    private(set) var categories: [SFSymbolsCategory] = []
+    private(set) var categories: [SFCategory] = []
 
     @MainActor
     public private(set) var result: [SFSymbol] = []
@@ -73,7 +73,7 @@ class Symbols {
     }
 }
 
-extension SymbolsRepository {
+extension SFSymbolsRepository {
     init(named name: String = "symbols", in bundle: Bundle = .main) throws {
         let path = bundle.path(forResource: name, ofType: "sqlite")!
         try self.init(at: path)
@@ -81,5 +81,5 @@ extension SymbolsRepository {
 }
 
 extension EnvironmentValues {
-    @Entry var symbols = try! SymbolsRepository()
+    @Entry var symbols = try! SFSymbolsRepository()
 }

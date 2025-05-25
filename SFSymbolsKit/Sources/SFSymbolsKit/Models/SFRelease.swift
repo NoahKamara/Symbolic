@@ -59,4 +59,16 @@ public struct PlatformVersions: Codable, Sendable {
     public let macOS: SemanticVersion
     public let visionOS: SemanticVersion
     public let watchOS: SemanticVersion
+    
+    public init(
+        iOS: SemanticVersion,
+        macOS: SemanticVersion,
+        visionOS: SemanticVersion,
+        watchOS: SemanticVersion
+    ) {
+        self.iOS = iOS
+        self.macOS = macOS
+        self.visionOS = visionOS
+        self.watchOS = watchOS
+    }
 }

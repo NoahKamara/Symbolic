@@ -11,7 +11,7 @@ import SwiftUI
 struct SymbolGridView: View {
     var symbols: [SFSymbol]
     @Binding
-    var selection: Set<SFSymbol.ID>
+    var selection: Set<SFSymbol.Name>
 
     var body: some View {
         ScrollView {
@@ -46,7 +46,7 @@ struct SymbolGridView: View {
         .contentMargins(10, for: .scrollContent)
     }
 
-    private func didTapSymbol(_ symbolName: SFSymbol.ID, multiselect: Bool = false) {
+    private func didTapSymbol(_ symbolName: SFSymbol.Name, multiselect: Bool = false) {
         let isSelected = selection.contains(symbolName)
 
         if multiselect {

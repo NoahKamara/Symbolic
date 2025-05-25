@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  DetailView.swift
 //  Symbolic
 //
 //  Copyright © 2024 Noah Kamara.
@@ -11,10 +11,10 @@ import SwiftUI
 
 @Observable
 class AppModel {
-    let repository: SymbolsRepository
+    let repository: SFSymbolsRepository
 
     @MainActor
-    var category: SFSymbolsCategory.ID? = nil {
+    var category: SFCategory.Key? = nil {
         didSet { triggerUpdate() }
     }
 
@@ -26,9 +26,9 @@ class AppModel {
     @MainActor
     private(set) var result: [SFSymbol] = []
 
-    var categories: [SFSymbolsCategory] = []
+    var categories: [SFCategory] = []
 
-    init(repository: SymbolsRepository) {
+    init(repository: SFSymbolsRepository) {
         self.repository = repository
         self.updateCancellable = updateSubject
             .eraseToAnyPublisher()
@@ -52,7 +52,7 @@ class AppModel {
         try await update()
 
         let categories = try await repository.categories()
-
+        
         await MainActor.run {
             self.categories = categories
         }
@@ -84,14 +84,14 @@ class AppModel {
     }
 }
 
-struct ContentView: View {
+struct DetailView: View {
     let model: AppModel
 
     @State
-    private var categoryDetail: SFSymbolsCategory? = nil
+    private var categoryDetail: SFCategory? = nil
 
     @State
-    var selectedSymbols: Set<SFSymbol.ID> = []
+    var selectedSymbols: Set<SFSymbol.Name> = []
 
     @Bindable
     var style: SymbolStyle = .init()
@@ -115,7 +115,7 @@ struct ContentView: View {
         .environment(style)
         .navigationTitle(categoryLabel(forKey: model.category ?? "all"))
 #if os(macOS)
-            .navigationSubtitle(Text("\(symbols.result.count) Symbols"))
+        .navigationSubtitle(Text("\(model.result.count) Symbols"))
 #else
             .toolbar {
                 ToolbarItem(placement: .status) {
@@ -155,9 +155,9 @@ struct ContentView: View {
 }
 
 #Preview {
-    @Previewable let model = AppModel(repository: try! SymbolsRepository())
+    @Previewable let model = AppModel(repository: try! SFSymbolsRepository())
     NavigationStack {
-        ContentView(model: model)
+        DetailView(model: model)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
 }

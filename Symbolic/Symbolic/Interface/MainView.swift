@@ -19,12 +19,12 @@ struct MainView: View {
                 selection: $model.category
             )
         } detail: {
-            ContentView(model: model)
+            DetailView(model: model)
         }
     }
 }
 
 #Preview {
-    @Previewable let repository = try! SymbolsRepository()
+    @Previewable let repository = try! SFSymbolsRepository()
     MainView(model: AppModel(repository: repository))
 }

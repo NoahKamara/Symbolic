@@ -21,9 +21,9 @@ struct InspectorView: View {
     let style: SymbolStyle
 
     @Binding
-    var selection: Set<SFSymbol.ID>
+    var selection: Set<SFSymbol.Name>
 
-    var sortedSymbols: [SFSymbol.ID] {
+    var sortedSymbols: [SFSymbol.Name] {
         selection.sorted()
     }
 

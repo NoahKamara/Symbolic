@@ -1,5 +1,5 @@
 //
-//  SymbolsRepository.swift
+//  SFSymbolsRepository.swift
 //  Symbolic
 //
 //  Copyright © 2024 Noah Kamara.
@@ -34,11 +34,18 @@ enum Related {
     struct SymbolCategory {}
 }
 
-public struct SymbolsRepository {
+public struct SFSymbolsRepository {
     package let database: DatabaseWriter
 
-    public init(database: DatabaseWriter) throws {
-        try Self.migrator.migrate(database)
+    public init(database: DatabaseWriter, createIfMissing: Bool = false) throws {
+        let isInitialized = try database.read { db in
+            try db.tableExists("symbols")
+        }
+        
+        if !isInitialized && createIfMissing {
+            try Self.migrator.migrate(database)
+        }
+        
         self.database = database
     }
 
@@ -84,9 +91,9 @@ public struct SymbolsRepository {
         }
     }
 
-    public func release(for year: SFRelease.Year) async throws -> SFRelease? {
+    public func releases() async throws -> [SFRelease] {
         try await database.read { db in
-            try SFRelease.filter(Column("year") == year).fetchOne(db)
+            try SFRelease.fetchAll(db)
         }
     }
 
@@ -113,7 +120,7 @@ public struct SymbolsRepository {
     }
 }
 
-public extension SymbolsRepository {
+public extension SFSymbolsRepository {
     static let migrator: DatabaseMigrator = {
         var migrator = DatabaseMigrator()
         migrator.registerMigration("init") { db in

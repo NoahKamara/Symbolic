@@ -7,7 +7,7 @@
 
 import SFSymbolsKit
 
-extension SymbolsRepository {
+extension SFSymbolsRepository {
     func insertReleases(_ releases: [SFRelease]) async throws -> [SFRelease.Year: SFRelease.RowID] {
         try await database.write { db in
             var ids = [String: Int64]()

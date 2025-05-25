@@ -93,7 +93,7 @@ struct SFSymbolsApp {
 
 
 extension SFSymbolsApp {
-    func extract(into repository: SymbolsRepository) async throws {
+    func extract(into repository: SFSymbolsRepository) async throws {
         print("Extraingig Symbols from \(metadataDirectory.path(percentEncoded: false))")
         // Load files
         let categories = try categoriesPlist()

@@ -9,9 +9,9 @@ import SFSymbolsKit
 import SwiftUI
 
 struct SidebarView: View {
-    let categories: [SFSymbolsCategory]
+    let categories: [SFCategory]
     @Binding
-    var selection: SFSymbolsCategory.ID?
+    var selection: SFCategory.Key?
 
     var body: some View {
         List(selection: $selection) {
@@ -31,7 +31,7 @@ struct SidebarView: View {
 }
 
 #Preview {
-    @Previewable @State var selection: SFSymbolsCategory.ID? = "all"
+    @Previewable @State var selection: SFCategory.Key? = "all"
 
     SidebarView(
         categories: [
@@ -64,3 +64,4 @@ struct SidebarView: View {
         selection: $selection
     )
 }
+
