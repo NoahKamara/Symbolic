@@ -16,33 +16,40 @@ public struct SymbolImage: View {
     public var body: some View {
         Image(systemName: name)
             .fontWeight(style.weight.toFontWeight())
-            .symbolRenderingMode(style.rendering.toSymbolRenderingMode())
-//            .font(.system(size: 30))
-            .modifier(SymbolForegroundStyle(colors: style.colors))
+            .symbolRenderingMode(style.renderingMode.toSymbolRenderingMode())
+            .modifier(
+                SymbolForegroundStyle(
+                    primaryColor: style.primaryColor,
+                    secondaryColor: style.secondaryColor,
+                    tertiaryColor: style.tertiaryColor
+                )
+            )
     }
 }
 
 fileprivate struct SymbolForegroundStyle: ViewModifier {
-    let colors: SymbolColors
+    var primaryColor: SymbolColor
+    var secondaryColor: SymbolColor
+    var tertiaryColor: SymbolColor
 
     func body(content: Content) -> some View {
         Group {
-            switch (colors.primary.style, colors.secondary.style, colors.tertiary.style) {
+            switch (primaryColor.style, secondaryColor.style, tertiaryColor.style) {
             case let (.some(primary), .none, .none):
                 content
-                    .foregroundStyle(symbolColor(primary, customColor: colors.primary.customColor))
+                    .foregroundStyle(symbolColor(primary, customColor: primaryColor.customColor))
             case let (.some(primary), .some(secondary), .none):
                 content
                     .foregroundStyle(
-                        symbolColor(primary, customColor: colors.primary.customColor),
-                        symbolColor(secondary, customColor: colors.secondary.customColor)
+                        symbolColor(primary, customColor: primaryColor.customColor),
+                        symbolColor(secondary, customColor: secondaryColor.customColor)
                     )
             case let (.some(primary), .some(secondary), .some(tertiary)):
                 content
                     .foregroundStyle(
-                        symbolColor(primary, customColor: colors.primary.customColor),
-                        symbolColor(secondary, customColor: colors.secondary.customColor),
-                        symbolColor(tertiary, customColor: colors.tertiary.customColor)
+                        symbolColor(primary, customColor: primaryColor.customColor),
+                        symbolColor(secondary, customColor: secondaryColor.customColor),
+                        symbolColor(tertiary, customColor: tertiaryColor.customColor)
                     )
             default:
                 content

@@ -24,31 +24,36 @@ struct InspectorStyleView: View {
             }
             
             LabeledContent("Rendering") {
-                SymbolRenderingModePicker(selection: $style.rendering)
+                SymbolRenderingModePicker(selection: $style.renderingMode)
                     .labelsHidden()
             }
         }
         .symbolVariant(.fill)
         
         Section("Colors") {
-            SymbolColorPicker(selection: $style.colors.primary)
+            SymbolColorPicker(selection: $style.primaryColor)
             
-            if style.rendering == .palette {
-                SymbolColorPicker(selection: $style.colors.secondary)
-                SymbolColorPicker(selection: $style.colors.tertiary)
+            if style.renderingMode == .palette {
+                SymbolColorPicker(selection: $style.secondaryColor)
+                SymbolColorPicker(selection: $style.tertiaryColor)
             }
         }
         
-        Section("Background") {}
+        Section("Background") {
+            SymbolBackgroundPicker(selection: $style.background)
+        }
     }
 }
 
 #Preview {
-    SymbolDetailPreviewAnimation { $symbols in
-        InspectorStyleView(
-            style: .init(),
-            selection: symbols
-        )
-    }
+    Text("Hi")
+        .inspector(isPresented: .constant(true)) {
+            SymbolDetailPreviewAnimation { $symbols in
+                InspectorStyleView(
+                    style: .init(),
+                    selection: symbols
+                )
+            }
+        }
 }
 

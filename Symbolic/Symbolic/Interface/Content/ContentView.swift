@@ -137,7 +137,7 @@ struct ContentView: View {
                 SymbolWeightPicker(selection: $style.weight)
             }
             ToolbarItem(id: "rendering-mode-picker", placement: .primaryAction) {
-                SymbolRenderingModePicker(selection: $style.rendering)
+                SymbolRenderingModePicker(selection: $style.renderingMode)
             }
         }
     }
