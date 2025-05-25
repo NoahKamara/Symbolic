@@ -20,7 +20,6 @@ struct SFSymbolsApp {
     }
 
     private func load(_ file: String) throws -> Data {
-        print("loading '\(file)'")
         return try Data(contentsOf: metadataDirectory.appending(component: file))
     }
 
@@ -69,7 +68,7 @@ struct SFSymbolsApp {
         try loadPlist("name_availability.plist")
     }
 
-    private func categoriesPlist() throws -> [SFSymbolsCategory] {
+    private func categoriesPlist() throws -> [SFCategory] {
         try loadPlist("categories.plist")
     }
 
@@ -92,50 +91,110 @@ struct SFSymbolsApp {
 
 // MARK: Extractor
 
+
 extension SFSymbolsApp {
     func extract(into repository: SymbolsRepository) async throws {
-        // Categories
+        print("Extraingig Symbols from \(metadataDirectory.path(percentEncoded: false))")
+        // Load files
         let categories = try categoriesPlist()
-        try await repository.insertCategories(categories)
-
-        // insert releases
         let nameAvailability = try nameAvailabilityPlist()
         let layersetAvailability = try layersetAvailabilityPlist()
+        let nameAliases = try nameAliasesStrings()
+        let symbolSearch = try symbolSearchPlist()
 
-        // generate a list of releases.
+        // Categories
+        let categoryIds = try await repository.insertCategories(categories)
+
+        // Releases
         // we need to merge name and layerset availability
         let releases = nameAvailability.yearToRelease
             .merging(layersetAvailability.yearToRelease, uniquingKeysWith: { first, _ in first })
-            .map { SFSymbolsRelease(year: $0.key, platforms: $0.value) }
+            .map { SFRelease(year: $0.key, platforms: $0.value) }
 
-        try await repository.insertReleases(releases)
+        let releaseIds = try await repository.insertReleases(releases)
 
-        // Insert Symbols
-        let symbols = nameAvailability
-            .symbols
-            .map { SFSymbol(name: $0.key, availability: $0.value) }
+        // Insert Layersets
+        let layersets = layersetAvailability.symbols.values
+            .reduce(Set<String>()) { layersets, map in
+                layersets.union(map.keys)
+            }
+            .map({
+                SFLayerset(name: $0)
+            })
         
-        try await repository.insertSymbols(symbols)
+        let layersetIds = try await repository.insertLayersets(layersets)
+        
+        // Symbols
+        let symbols: [SFSymbol] = nameAvailability
+            .symbols
+            .map { (name, releaseYear) in
+                return SFSymbol(
+                    name: name,
+                    introducedId: releaseIds[releaseYear]!
+                )
+            }
 
-        // Insert Layerset Availability
-        #warning("insert layerset availability not yet implemented")
+        let symbolIds = try await repository.insertSymbols(symbols)
 
         // Symbol Categories
-        let symbolCategories = try symbolCategoriesPlist()
+        let symbolCategoriesPlist = try symbolCategoriesPlist()
+
+        let symbolCategories = symbolCategoriesPlist.flatMap { (symbolName, categoryKeys) in
+            let symbolId = symbolIds[symbolName]!
+
+            return categoryKeys.map({ categoryKey in
+                let categoryId = categoryIds[categoryKey]!
+                return SFSymbolCategory(symbolId: symbolId, categoryId: categoryId)
+            })
+        }
         try await repository.insertSymbolCategories(symbolCategories)
 
-        // Aliases
-        let nameAliases = try nameAliasesStrings().valuesAsKeys()
-        try await repository.insertSymbolAliases(nameAliases)
+        // Insert Symbol Layerset Availability
+        let layersetAvailabilities = layersetAvailability.symbols.flatMap { (symbol, layersets) in
+            let symbolId = symbolIds[symbol]!
+            
+            return layersets.map { (layerset, year) in
+                SFLayersetAvailability(
+                    symbolId: symbolId,
+                    layersetId: layersetIds[layerset]!,
+                    introducedId: releaseIds[year]!
+                )
+            }
+        }
+        
+        try await repository.insertLayersetAvailabilities(layersetAvailabilities)
 
-        // Legacy Aliases
-//        let legacyAliases = try legacyAliasesStrings().valuesAsKeys()
-        #warning("legacyAliases not yet implemented")
+        // Search
+        let aliasesForName = nameAliases.valuesAsKeys()
+        let searchRecords = symbolIds.map { (symbolName, symbolId) in
+            SFSymbolSearchRecord(
+                id: symbolId,
+                name: symbolName,
+                aliases: aliasesForName[symbolName] ?? [],
+                keywords: symbolSearch[symbolName] ?? []
+            )
+        }
+        
+        try await repository.insertSearchRecords(searchRecords)
+        
+        //        // Aliases
+        //        let nameAliases = try nameAliasesStrings().valuesAsKeys()
+        //        try await repository.insertSymbolAliases(nameAliases)
+        //
+        //        // Legacy Aliases
+        //        //        let legacyAliases = try legacyAliasesStrings().valuesAsKeys()
+        //        #warning("legacyAliases not yet implemented")
+
+        print("Releases: \(releaseIds.count)")
+        print("Categories: \(categoryIds.count)")
+        print("Symbols: \(symbolIds.count)")
+        print("Search Records \(searchRecords.count)")
+        print("Layersets: \(layersets.count)")
     }
 }
 
-private extension Dictionary where Value: Hashable {
-    func valuesAsKeys() -> [Value: [Key]] {
+extension Dictionary where Value: Hashable {
+    fileprivate func valuesAsKeys() -> [Value: [Key]] {
         reduce(into: [Value: [Key]]()) { result, element in
             var existing = result[element.value] ?? []
 
@@ -167,6 +226,9 @@ private struct AvailabilityPlist<Item: Decodable>: Decodable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.symbols = try container.decode([String: Item].self, forKey: .symbols)
-        self.yearToRelease = try container.decode([Year: PlatformVersions].self, forKey: .yearToRelease)
+        self.yearToRelease = try container.decode(
+            [Year: PlatformVersions].self,
+            forKey: .yearToRelease
+        )
     }
 }

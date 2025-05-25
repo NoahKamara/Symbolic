@@ -10,9 +10,9 @@ import GRDB
 
 public struct SymbolsFetchRequest: Sendable {
     public let searchTerm: String?
-    public let category: SFSymbolsCategory.ID?
+    public let category: SFCategory.Key?
 
-    public init(searchTerm: String? = nil, category: SFSymbolsCategory.ID? = nil) {
+    public init(searchTerm: String? = nil, category: SFCategory.Key? = nil) {
         self.searchTerm = searchTerm
         self.category = category
     }
@@ -35,7 +35,7 @@ enum Related {
 }
 
 public struct SymbolsRepository {
-    private let database: DatabaseWriter
+    package let database: DatabaseWriter
 
     public init(database: DatabaseWriter) throws {
         try Self.migrator.migrate(database)
@@ -47,7 +47,7 @@ public struct SymbolsRepository {
         try self.init(database: database)
     }
 
-    public func symbol(named name: SFSymbol.ID) async throws -> SFSymbol? {
+    public func symbol(named name: SFSymbol.Name) async throws -> SFSymbol? {
         try await database.read { db in
             try SFSymbol.filter(Column("name") == name).fetchOne(db)
         }
@@ -58,7 +58,7 @@ public struct SymbolsRepository {
 
         if let categoryKey = request.category {
             let categoryId = try await database.read { db in
-                try SFSymbolsCategory
+                try SFCategory
                     .filter(Column("key") == categoryKey)
                     .select(Column("id"))
                     .asRequest(of: Int64.self)
@@ -84,21 +84,31 @@ public struct SymbolsRepository {
         }
     }
 
-    public func release(for year: SFSymbolsRelease.ID) async throws -> SFSymbolsRelease? {
+    public func release(for year: SFRelease.Year) async throws -> SFRelease? {
         try await database.read { db in
-            try SFSymbolsRelease.filter(Column("year") == year).fetchOne(db)
+            try SFRelease.filter(Column("year") == year).fetchOne(db)
         }
     }
 
-    public func category(forKey key: SFSymbolsCategory.ID) async throws -> SFSymbolsCategory? {
+    public func category(forKey key: SFCategory.Key) async throws -> SFCategory? {
         try await database.read { db in
-            try SFSymbolsCategory.filter(Column("key") == key).fetchOne(db)
+            try SFCategory.filter(Column("key") == key).fetchOne(db)
         }
     }
 
-    public func categories() async throws -> [SFSymbolsCategory] {
+    public func categories() async throws -> [SFCategory] {
         try await database.read { db in
-            try SFSymbolsCategory.fetchAll(db)
+            try SFCategory.fetchAll(db)
+        }
+    }
+
+    public func clear() async throws {
+        try await database.write { db in
+            try db.execute(sql: "DELETE FROM symbol_categories")
+            try db.execute(sql: "DELETE FROM symbol_aliases")
+            try db.execute(sql: "DELETE FROM symbols")
+            try db.execute(sql: "DELETE FROM categories")
+            try db.execute(sql: "DELETE FROM releases")
         }
     }
 }
@@ -106,40 +116,36 @@ public struct SymbolsRepository {
 public extension SymbolsRepository {
     static let migrator: DatabaseMigrator = {
         var migrator = DatabaseMigrator()
-        migrator.registerMigration("create_symbols_table") { db in
+        migrator.registerMigration("init") { db in
+            try db.create(table: SFRelease.databaseTableName) { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.column("year", .text).unique()
+                t.column("iOS", .text)
+                t.column("macOS", .text)
+                t.column("visionOS", .text)
+                t.column("watchOS", .text)
+            }
+            
             try db.create(table: SFSymbol.databaseTableName) { t in
                 t.autoIncrementedPrimaryKey("id")
                 t.column("name", .text).notNull().unique()
-                t.column("availability", .text).notNull()
-//                t.column("hierarchicalAvailability", .text)
-//                t.column("multicolorAvailability", .text)
-//                t.column("categories")
-//                t.column("aliases")
+                t.column("introducedId", .integer)
             }
-        }
-
-        migrator.registerMigration("create_aliases_table") { db in
-            // Create the aliases table
-            try db.create(table: Persistence.SymbolAlias.databaseTableName) { t in
-                t.autoIncrementedPrimaryKey("id")
-                t.column("symbolId", .integer).notNull().references("symbols", onDelete: .cascade)
-                t.column("alias", .text).notNull()
-            }
-        }
-
-        migrator.registerMigration("create_categories_table") { db in
-            try db.create(table: SFSymbolsCategory.databaseTableName) { t in
+            
+            try db.create(table: SFCategory.databaseTableName) { t in
                 t.autoIncrementedPrimaryKey("id")
                 t.column("key", .text).unique()
                 t.column("label", .text)
                 t.column("icon", .text)
             }
-        }
-
-        migrator.registerMigration("create_symbol_categories_table") { db in
-            // Create the aliases table
-            try db.create(table: "symbol_categories") { t in
+            
+            try db.create(table: SFLayerset.databaseTableName) { t in
                 t.autoIncrementedPrimaryKey("id")
+                t.column("name", .text).unique()
+            }
+            
+            // MARK: Aliases
+            try db.create(table: SFSymbolCategory.databaseTableName) { t in
                 t
                     .column("symbolId", .integer)
                     .notNull()
@@ -147,27 +153,43 @@ public extension SymbolsRepository {
                 t
                     .column("categoryId", .integer)
                     .notNull()
-                    .references(SFSymbolsCategory.databaseTableName, onDelete: .cascade)
+                    .references(SFCategory.databaseTableName, onDelete: .cascade)
             }
-        }
-
-        migrator.registerMigration("create_releases_table") { db in
-            try db.create(table: SFSymbolsRelease.databaseTableName) { t in
-                t.column("year", .text).unique()
-                t.column("iOS", .text)
-                t.column("macOS", .text)
-                t.column("visionOS", .text)
-                t.column("watchOS", .text)
+            
+            try db.create(table: SFLayersetAvailability.databaseTableName) { t in
+                t
+                    .column("symbolId", .integer)
+                    .notNull()
+                    .references(SFSymbol.databaseTableName, onDelete: .cascade)
+                t
+                    .column("layersetId", .integer)
+                    .notNull()
+                    .references(SFLayerset.databaseTableName, onDelete: .cascade)
+                t
+                    .column("introducedId", .integer)
+                    .notNull()
+                    .references(SFRelease.databaseTableName, onDelete: .cascade)
             }
-        }
-
-        migrator.registerMigration("create_search_table") { db in
-            try db.create(virtualTable: "symbolsFTS", using: FTS5()) { t in
+            
+            // MARK: Search
+            try db.create(virtualTable: SFSymbolSearchRecord.databaseTableName, using: FTS5()) { t in
+                t.column("id").notIndexed()
                 t.column("name")
                 t.column("aliases")
-                t.column("categories")
+                t.column("keywords")
             }
         }
+
+//        migrator.registerMigration("create_aliases_table") { db in
+//            // Create the aliases table
+//            try db.create(table: Persistence.SymbolAlias.databaseTableName) { t in
+//                t.autoIncrementedPrimaryKey("id")
+//                t.column("symbolId", .integer).notNull().references("symbols", onDelete: .cascade)
+//                t.column("alias", .text).notNull()
+//            }
+//        }
+        
+        
 
         return migrator
     }()
@@ -191,17 +213,12 @@ private struct SymbolCategory: Codable, PersistableRecord {
     static let category = belongsTo(SymbolCategory.self)
 }
 
-extension SFSymbolsCategory: FetchableRecord, PersistableRecord {
-    public static let databaseTableName = "categories"
-    fileprivate static let symbols = hasMany(SymbolCategory.self)
-}
-
 extension SFSymbol: FetchableRecord, PersistableRecord {
     public static let databaseTableName = "symbols"
     fileprivate static let symbolCategories = hasMany(SymbolCategory.self)
 }
 
-extension SFSymbolsRelease: FetchableRecord, PersistableRecord {
+extension SFRelease: FetchableRecord, PersistableRecord {
     public static let databaseTableName = "releases"
 }
 
@@ -228,66 +245,3 @@ enum Persistence {
     }
 }
 
-extension SymbolsRepository {
-    package func insertSymbols(_ symbols: [SFSymbol]) async throws {
-        try await database.write { db in
-            for symbol in symbols {
-                try symbol.inserted(db)
-            }
-//            let record = IndexedRecord(
-//                name: symbol.name,
-//                aliases: symbol.aliases,
-//                categories: symbol.categories
-//            )
-//            try record.insert(db)
-        }
-    }
-
-    package func insertSymbolCategories(_ symbolCategories: [String: [String]]) async throws {
-        try await database.write { db in
-            for (symbolName, category_keys) in symbolCategories {
-                let symbolId = try SFSymbol
-                    .filter(Column("name") == symbolName)
-                    .select(Column("id"))
-                    .asRequest(of: Int64.self)
-                    .fetchOne(db)
-
-                for category_key in category_keys {
-                    try db.execute(literal: """
-                    INSERT INTO symbol_categories (symbolId, categoryId)
-                    VALUES (\(symbolId), (SELECT id FROM categories WHERE key = \(category_key)))
-                    """)
-                }
-            }
-        }
-    }
-
-    package func insertSymbolAliases(legacy: Bool = false, _ nameAliases: [String: [String]]) async throws {
-        try await database.write { db in
-            for (symbolName, aliases) in nameAliases {
-                for alias in aliases {
-                    try db.execute(literal: """
-                    INSERT INTO symbol_aliases (alias, symbolId)
-                    VALUES (\(alias), (SELECT id FROM symbols WHERE name = \(symbolName)))
-                    """)
-                }
-            }
-        }
-    }
-
-    package func insertReleases(_ releases: [SFSymbolsRelease]) async throws {
-        try await database.write { db in
-            for release in releases {
-                try release.insert(db)
-            }
-        }
-    }
-
-    package func insertCategories(_ categories: [SFSymbolsCategory]) async throws {
-        try await database.write { db in
-            for category in categories {
-                try category.insert(db)
-            }
-        }
-    }
-}
