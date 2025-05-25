@@ -11,11 +11,11 @@ import SwiftUI
 
 struct SymbolRenderingModePicker: View {
     @Binding
-    var selection: SFSymbolRenderingMode
+    var selection: SymbolRenderingMode
 
     var body: some View {
         Picker(selection: $selection) {
-            ForEach(SFSymbolRenderingMode.allCases, id: \.self) { mode in
+            ForEach(SymbolRenderingMode.allCases, id: \.self) { mode in
                 Text(mode.displayName)
             }
         } label: {
@@ -29,11 +29,11 @@ struct SymbolRenderingModePicker: View {
 }
 
 #Preview {
-    @Previewable @State var selection = SFSymbolRenderingMode.monochrome
+    @Previewable @State var selection = SymbolRenderingMode.monochrome
     SymbolRenderingModePicker(selection: $selection)
 }
 
-extension SFSymbolRenderingMode {
+extension SymbolRenderingMode {
     fileprivate var displayName: String {
         switch self {
         case .monochrome: "Monochrome"
@@ -43,7 +43,7 @@ extension SFSymbolRenderingMode {
         }
     }
 
-    func toSymbolRenderingMode() -> SymbolRenderingMode {
+    func toSymbolRenderingMode() -> SwiftUI.SymbolRenderingMode {
         switch self {
         case .monochrome: .monochrome
         case .hierarchical: .hierarchical

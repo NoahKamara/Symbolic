@@ -9,11 +9,11 @@ import SwiftUI
 
 struct SymbolWeightPicker: View {
     @Binding
-    var selection: SFSymbolWeight
+    var selection: SymbolWeight
 
     var body: some View {
         Picker(selection: $selection) {
-            ForEach(SFSymbolWeight.allCases, id: \.self) { weight in
+            ForEach(SymbolWeight.allCases, id: \.self) { weight in
                 Text(weight.displayName)
             }
         } label: {
@@ -27,11 +27,11 @@ struct SymbolWeightPicker: View {
 }
 
 #Preview {
-    @Previewable @State var selection = SFSymbolWeight.regular
+    @Previewable @State var selection = SymbolWeight.regular
     SymbolWeightPicker(selection: $selection)
 }
 
-extension SFSymbolWeight {
+extension SymbolWeight {
     var displayName: String {
         switch self {
         case .ultralight: "Ultralight"
