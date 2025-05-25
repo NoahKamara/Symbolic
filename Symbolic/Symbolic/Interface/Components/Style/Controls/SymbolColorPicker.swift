@@ -11,81 +11,100 @@ struct SymbolColorPicker: View {
     @Binding
     var selection: SymbolColor
 
+    @FocusState
+    var opacityHasFocus: Bool
+    
     var body: some View {
-        HStack {
-            Menu {
-                Picker(selection: $selection.style) {
-                    ForEach(SymbolColorStyle.hierarchical, id: \.self) { style in
-                        StyleLabelView(style)
-                    }
-                } label: {
-                    StyleGroupLabel(
-                        title: "Hierarchical",
-                        condition: \.isHierarchical,
-                        selection: selection
-                    )
-                }
-                .pickerStyle(.menu)
-
-                Picker(selection: $selection.style) {
-                    ForEach(SymbolColorStyle.colors, id: \.self) { style in
-                        StyleLabelView(style)
-                    }
-                } label: {
-                    StyleGroupLabel(
-                        title: "Colors",
-                        condition: \.isColor,
-                        selection: selection
-                    )
-                }
-                .pickerStyle(.menu)
-
-                ForEach(SymbolColorStyle.others, id: \.self) { style in
-                    Button(action: { selection.style = style }) {
-                        StyleLabelView(style, customColor: selection.customColor)
-                    }
+        Menu {
+            Picker(selection: $selection.style) {
+                ForEach(SymbolColorStyle.hierarchical, id: \.self) { style in
+                    StyleLabelView(style)
                 }
             } label: {
-                Label {
-                    ZStack {
-                        Text("Quaternary").opacity(0)
-                        Text(selection.style?.displayName ?? "None")
+                StyleGroupLabel(
+                    title: "Hierarchical",
+                    condition: \.isHierarchical,
+                    selection: selection
+                )
+            }
+            .pickerStyle(.menu)
+
+            Picker(selection: $selection.style) {
+                ForEach(SymbolColorStyle.colors, id: \.self) { style in
+                    StyleLabelView(style)
+                }
+            } label: {
+                StyleGroupLabel(
+                    title: "Colors",
+                    condition: \.isColor,
+                    selection: selection
+                )
+            }
+            .pickerStyle(.menu)
+
+            ForEach(SymbolColorStyle.others, id: \.self) { style in
+                Button(action: { selection.style = style }) {
+                    StyleLabelView(style, customColor: selection.customColor)
+                }
+            }
+        } label: {
+            Label {
+                Text(selection.style?.displayName ?? "None")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } icon: {
+                ColorView(
+                    style: selection.style ?? .custom,
+                    customColor: selection.customColor
+                )
+            }
+        }
+        .safeAreaInset(edge: .trailing) {
+            ZStack {
+                Text("100%")
+                    .foregroundStyle(.clear)
+                    .padding(.horizontal, 1)
+                    .fixedSize()
+                    
+                TextField("", value: .constant(0.5), format: .percent, prompt: Text("100%"))
+                    .labelsHidden()
+                    .lineLimit(1)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($opacityHasFocus)
+                    .onSubmit {
+                        opacityHasFocus = false
                     }
-                } icon: {
-                    ColorView(
-                        style: selection.style ?? .custom,
-                        customColor: selection.customColor
-                    )
+                
+            }
+            .multilineTextAlignment(.center)
+            .disabled(selection.style == .custom)
+            .opacity(selection.style != .custom ? 1 : 0)
+            .overlay(alignment: .top) {
+                if case .custom = selection.style {
+                    if case .custom = selection.style {
+                        ColorPicker("", selection: $selection.customColor, supportsOpacity: false)
+                            .labelsHidden()
+                            .controlSize(.mini)
+                    }
                 }
             }
             .fixedSize()
-
-            TextField("100", value: .constant(1.0), format: .percent)
-                .multilineTextAlignment(.trailing)
-                .textFieldStyle(.roundedBorder)
-                .disabled(selection.style == .custom)
-                .opacity(selection.style != .custom ? 1 : 0)
-                .overlay {
-                    if case .custom = selection.style {
-                        ColorPicker("", selection: $selection.customColor, supportsOpacity: false)
-                            .padding(.horizontal)
-                    }
-                }
-#if os(iOS)
-                .frame(width: 70)
-#endif
         }
     }
 }
 
 #Preview {
     @Previewable @State var hierarchical = SymbolColor(style: .primary)
+    @Previewable @State var styleColor = SymbolColor(style: .blue)
     @Previewable @State var customColor = SymbolColor(style: .custom)
 
-    VStack {
-        SymbolColorPicker(selection: $hierarchical)
-//        SymbolColorPicker(selection: $customColor)
-    }
+    Text("Hello World")
+        .inspector(isPresented: .constant(true)) {
+            Form {
+                SymbolColorPicker(selection: $hierarchical)
+                SymbolColorPicker(selection: $styleColor)
+                SymbolColorPicker(selection: $customColor)
+            }
+        }
 }
 
 // MARK: StyleLabelView

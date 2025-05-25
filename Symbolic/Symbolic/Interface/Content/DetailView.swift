@@ -45,14 +45,16 @@ class AppModel {
                     }
                 }
             }
-
-        Task { try await self.bootstrap() }
     }
 
     private let updateSubject = PassthroughSubject<SymbolsFetchRequest, Never>()
     private var updateCancellable: (any Cancellable)!
 
-    private func bootstrap() async throws {
+    func bootstrap() async throws {
+        guard categories.isEmpty else {
+            print("Already")
+            return
+        }
         try await update()
 
         let categories = try await repository.categories()

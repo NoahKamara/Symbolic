@@ -12,6 +12,7 @@ import SwiftUI
 enum InspectorTab {
     case info
     case style
+    case animate
 }
 
 struct InspectorView: View {
@@ -31,18 +32,24 @@ struct InspectorView: View {
     var tab: InspectorTab = .style
 
     var body: some View {
-        Group {
-            switch tab {
-            case .info:
-                InfoTab(selection: selection)
-
-            case .style:
-                StyleTab(style: style, selection: selection)
+        List {
+            Group {
+                switch tab {
+                case .info:
+                    InfoTab(selection: selection)
+                    
+                case .style:
+                    StyleTab(style: style, selection: selection)
+                    
+                case .animate:
+                    InfoTab(selection: selection)
+                }
             }
+            .listRowSeparator(.hidden)
+            .listRowBackground(EmptyView())
         }
-        .scrollContentBackground(.hidden)
         .frame(maxHeight: .infinity)
-        .navigationBarBackButtonHidden()
+        .scrollContentBackground(.hidden)
         .safeAreaInset(edge: .top, spacing: 0) {
             Picker("", selection: $tab) {
                 Image(systemName: "info.circle.fill").tag(InspectorTab.info)

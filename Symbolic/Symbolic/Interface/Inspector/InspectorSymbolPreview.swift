@@ -21,46 +21,17 @@ struct InspectorSymbolPreview: View {
 
     var body: some View {
         TileView {
-            Group {
-                if symbols.count > 6 {
-                    SpiralView(
-                        endAt: .degrees(720),
-                        smoothness: 5
-                    ) { index, spiralPoint in
-                        if index > 4, maxIndex - index < symbols.count {
-                            let symbol = symbols[maxIndex - index]
-                            Image(systemName: symbol)
-                                .matchedGeometryEffect(id: symbol, in: namespace)
-                                .font(.system(size: max(10, min(50, spiralPoint.angle.degrees / 16))))
-                                .position(x: spiralPoint.point.x, y: spiralPoint.point.y)
-                        }
-                    }
-                    .padding(.top, 20)
-                } else if symbols.count > 1 {
-                    LazyVGrid(columns: [.init(), .init(), .init()]) {
-                        ForEach(symbols, id: \.self) { symbol in
-                            Image(systemName: symbol)
-                                .fontWeight(style?.weight.toFontWeight())
-                                .symbolRenderingMode(style?.rendering.toSymbolRenderingMode())
-                                .font(.system(size: symbols.count > 2 ? 50 : 100))
-                                .foregroundStyle(.primary)
-                                .padding(.vertical)
-                                .matchedGeometryEffect(id: symbol, in: namespace)
-                        }
-                    }
-                } else if let symbol = symbols.first {
-                    Image(systemName: symbol)
-                        .fontWeight(style?.weight.toFontWeight())
-                        .symbolRenderingMode(style?.rendering.toSymbolRenderingMode())
-                        .font(.system(size: 100))
-                        .foregroundStyle(.primary)
-                        .padding(.vertical)
-                }
+            if let symbol = symbols.first {
+                Image(systemName: symbol)
+                    .fontWeight(style?.weight.toFontWeight())
+                    .symbolRenderingMode(style?.rendering.toSymbolRenderingMode())
+                    .font(.system(size: 85))
+                    .foregroundStyle(.primary)
+                    .padding(.vertical)
             }
-            .contentTransition(.symbolEffect(.automatic, options: .speed(2.5)))
-            .frame(height: 240)
         }
-        .frame(height: 240)
+        .contentTransition(.symbolEffect(.automatic, options: .speed(2.5)))
+        .frame(height: 140)
         .containerShape(.rect(cornerRadius: 10))
         .backgroundStyle(Color.white)
     }
