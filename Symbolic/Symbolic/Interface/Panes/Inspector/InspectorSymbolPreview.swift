@@ -20,7 +20,7 @@ struct InspectorSymbolPreview: View {
     var namespace
 
     var body: some View {
-        TileView(background: style.background) {
+        SymbolBackgroundView(background: style.background) {
             if let symbolName = symbols.first {
                 SymbolImage(name: symbolName)
                     .font(.system(size: 85))

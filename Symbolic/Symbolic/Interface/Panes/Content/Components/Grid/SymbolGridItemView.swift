@@ -15,7 +15,7 @@ struct SymbolGridItemView: View {
 
     var body: some View {
         VStack(spacing: 2) {
-            TileView(background: style.background) {
+            SymbolBackgroundView(background: style.background) {
                 SymbolImage(name: name)
                     .font(.system(size: 30))
             }

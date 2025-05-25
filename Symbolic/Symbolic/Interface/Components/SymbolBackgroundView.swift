@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TileView<Content: View>: View {
+struct SymbolBackgroundView<Content: View>: View {
     let background: SymbolBackground
     @ViewBuilder
     var content: Content
