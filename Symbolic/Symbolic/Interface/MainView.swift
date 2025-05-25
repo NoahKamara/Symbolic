@@ -12,15 +12,18 @@ struct MainView: View {
     @Bindable
     var model: AppModel
 
+    @Bindable
+    var style: SymbolStyle = .init()
+    
     var body: some View {
         NavigationSplitView {
-            SidebarView(
-                categories: model.categories,
-                selection: $model.category
-            )
+            SidebarView(categories: model.categories, selection: $model.category)
+            .navigationSplitViewColumnWidth(250)
         } detail: {
             DetailView(model: model)
         }
+        .navigationSplitViewStyle(.balanced)
+        .environment(style)
     }
 }
 

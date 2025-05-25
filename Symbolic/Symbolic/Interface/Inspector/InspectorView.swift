@@ -27,8 +27,6 @@ struct InspectorView: View {
         selection.sorted()
     }
 
-    let maxIndex = 17
-
     @State
     var tab: InspectorTab = .style
 
@@ -42,16 +40,20 @@ struct InspectorView: View {
                 StyleTab(style: style, selection: selection)
             }
         }
+        .scrollContentBackground(.hidden)
         .frame(maxHeight: .infinity)
-        .safeAreaPadding(10)
-        .safeAreaInset(edge: .top) {
+        .navigationBarBackButtonHidden()
+        .safeAreaInset(edge: .top, spacing: 0) {
             Picker("", selection: $tab) {
                 Image(systemName: "info.circle.fill").tag(InspectorTab.info)
                 Image(systemName: "paintpalette.fill").tag(InspectorTab.style)
                 Image(systemName: "play.fill") // .tab(InspectorTab.style)
             }
             .pickerStyle(.segmented)
+            .safeAreaPadding(10)
+            .background()
         }
+        .background(.background.secondary)
     }
 }
 

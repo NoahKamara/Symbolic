@@ -16,7 +16,9 @@ struct SymbolGridView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(
-                columns: [.init(.adaptive(minimum: 100, maximum: 140))],
+                columns: [
+                    .init(.adaptive(minimum: 100, maximum: 140))
+                ],
                 spacing: 10
             ) {
                 ForEach(symbols, id: \.name) { symbol in
@@ -29,13 +31,11 @@ struct SymbolGridView: View {
                     }
 #if os(macOS)
                     .modifierKeyAlternate(.command) {
-//                        SymbolGridItemView(
-//                            name: symbol.name,
-//                            isSelected: selection.contains(symbol.name)
-//                        )
-                        Text("HELLO")
-                            .foregroundStyle(.green)
-                            .onTapGesture { didTapSymbol(symbol.name) }
+                        SymbolGridItemView(
+                            name: symbol.name,
+                            isSelected: selection.contains(symbol.name)
+                        )
+                        .onTapGesture { didTapSymbol(symbol.name) }
                     }
 #endif
                     .buttonStyle(.plain)

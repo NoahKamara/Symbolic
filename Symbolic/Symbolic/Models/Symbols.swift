@@ -35,7 +35,6 @@ class Symbols {
         let request = SymbolsFetchRequest(
             category: category != "all" ? category : nil
         )
-        print("trigger")
         updateSubject.send(request)
     }
 

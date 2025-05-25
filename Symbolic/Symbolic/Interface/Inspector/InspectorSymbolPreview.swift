@@ -57,11 +57,12 @@ struct InspectorSymbolPreview: View {
                         .padding(.vertical)
                 }
             }
-            .contentTransition(.symbolEffect(.automatic))
-            .animation(.interactiveSpring, value: symbols.count)
+            .contentTransition(.symbolEffect(.automatic, options: .speed(2.5)))
             .frame(height: 240)
         }
         .frame(height: 240)
+        .containerShape(.rect(cornerRadius: 10))
+        .backgroundStyle(Color.white)
     }
 }
 

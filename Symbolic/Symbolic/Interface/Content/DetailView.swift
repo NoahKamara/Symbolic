@@ -23,6 +23,10 @@ class AppModel {
         didSet { triggerUpdate() }
     }
 
+    var isShowingSidebar: Bool = false
+    
+    var selectedSymbols: Set<SFSymbol.Name> = []
+
     @MainActor
     private(set) var result: [SFSymbol] = []
 
@@ -79,22 +83,13 @@ class AppModel {
         let request = SymbolsFetchRequest(
             category: category != "all" ? category : nil
         )
-        print("trigger")
         updateSubject.send(request)
     }
 }
 
 struct DetailView: View {
-    let model: AppModel
-
-    @State
-    private var categoryDetail: SFCategory? = nil
-
-    @State
-    var selectedSymbols: Set<SFSymbol.Name> = []
-
     @Bindable
-    var style: SymbolStyle = .init()
+    var model: AppModel
 
     @State
     private var isPresentingInspector: Bool = true
@@ -107,50 +102,56 @@ struct DetailView: View {
         return category.label
     }
 
+    @Environment(SymbolStyle.self)
+    var style
+    
+    @State
+    private var availableWidth: CGFloat = 0
+    
     var body: some View {
         SymbolGridView(
             symbols: model.result,
-            selection: $selectedSymbols
+            selection: $model.selectedSymbols
         )
-        .environment(style)
         .navigationTitle(categoryLabel(forKey: model.category ?? "all"))
 #if os(macOS)
         .navigationSubtitle(Text("\(model.result.count) Symbols"))
-#else
-            .toolbar {
-                ToolbarItem(placement: .status) {
-                    Text("\(model.result.count) Symbols")
-                        .contentTransition(.numericText(value: Double(model.result.count)))
-                }
-            }
 #endif
-            .toolbar(id: "tools") {
-                ToolbarItem(id: "weight-picker", placement: .primaryAction) {
-                    SymbolWeightPicker(selection: $style.weight)
-                }
-                ToolbarItem(id: "rendering-mode-picker", placement: .primaryAction) {
-                    SymbolRenderingModePicker(selection: $style.rendering)
-                }
+        .onChange(of: isPresentingInspector) { _, newValue in
+            model.isShowingSidebar = !newValue
+        }
+        .modifier(
+            SymbolInspectorModifier(
+                isPresenting: $isPresentingInspector,
+                selection: $model.selectedSymbols
+            )
+        )
+        .toolbar {
+            @Bindable var style = self.style
+            
+            ToolbarItem(id: "weight-picker", placement: .primaryAction) {
+                SymbolWeightPicker(selection: $style.weight)
             }
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        withAnimation(.easeInOut) {
-                            isPresentingInspector.toggle()
-                        }
-                    }) {
-                        Image(systemName: "sidebar.squares.trailing")
-                    }
-                }
+            ToolbarItem(id: "rendering-mode-picker", placement: .primaryAction) {
+                SymbolRenderingModePicker(selection: $style.rendering)
             }
-            .inspector(isPresented: $isPresentingInspector) {
-                InspectorView(style: style, selection: $selectedSymbols)
-                    .presentationDetents([.height(300), .medium, .large])
-                    .presentationDragIndicator(.hidden)
-            }
-            .onAppear {
-                selectedSymbols.insert("circle")
-            }
+        }
+    }
+}
+
+@propertyWrapper
+struct Style: DynamicProperty {
+    @Environment(SymbolStyle.self)
+    private var style: SymbolStyle?
+    
+    var wrappedValue: SymbolStyle {
+        if let style {
+            return style
+        } else {
+            
+            print("Missing")
+            return SymbolStyle()
+        }
     }
 }
 
@@ -160,6 +161,7 @@ struct DetailView: View {
         DetailView(model: model)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .environment(SymbolStyle())
 }
 
 extension String {

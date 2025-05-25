@@ -13,6 +13,7 @@ class SymbolStyle: Codable {
     var weight: SFSymbolWeight = .regular
     var rendering: SFSymbolRenderingMode = .monochrome
     var colors: SymbolColors = .init()
+    var backgroundColor: SymbolColor = .init(style: nil)
 }
 
 // MARK: Rendering Mode

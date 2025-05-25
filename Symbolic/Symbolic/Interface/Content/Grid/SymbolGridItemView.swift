@@ -18,7 +18,6 @@ struct SymbolGridItemView: View {
                     ContainerRelativeShape()
                         .stroke(isSelected ? Color.accentColor : .clear, lineWidth: 3)
                 }
-                .containerShape(RoundedRectangle(cornerRadius: 5))
                 .frame(width: 100)
 
             Text(name.forceDotWrapping)
@@ -27,7 +26,7 @@ struct SymbolGridItemView: View {
                 .padding(.horizontal, 4)
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        .contentShape(.rect)
+        .containerShape(RoundedRectangle(cornerRadius: 5))
     }
 }
 

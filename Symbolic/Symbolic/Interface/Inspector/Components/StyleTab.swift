@@ -19,14 +19,14 @@ extension InspectorView {
                 InspectorSymbolPreview(symbols: Array(selection.sorted()))
                     .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .environment(style)
-
+                
                 Section("Rendering") {
                     LabeledContent("Font Weight") {
                         SymbolWeightPicker(selection: $style.weight)
                             .labelsHidden()
                     }
 
-                    LabeledContent("Rendering Mode") {
+                    LabeledContent("Rendering") {
                         SymbolRenderingModePicker(selection: $style.rendering)
                             .labelsHidden()
                     }
@@ -51,7 +51,6 @@ extension InspectorView {
 
                 Section("Background") {}
             }
-            .containerShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
     }
 }
