@@ -11,7 +11,14 @@ struct SymbolDetailPreviewAnimation<Content: View>: View {
     @State
     private var symbols: Set<String> = []
 
-    private let allSymbols = SymbolSelectionChangePreview.defaultSymbols.sorted()
+    private let allSymbols = [
+        "rectangle.and.pencil.and.ellipsis",
+        "person.3.sequence",
+        "paintpalette",
+        "paintpalette.fill",
+        "person.3.sequence.fill",
+        "swatchpalette",
+    ].sorted()
 
     let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 
@@ -50,3 +57,4 @@ private extension Array {
         return slices
     }
 }
+

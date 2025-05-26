@@ -29,7 +29,7 @@ struct InspectorView: View {
     }
 
     @State
-    var tab: InspectorTab = .style
+    var tab: InspectorTab = .info
 
     var body: some View {
         List {

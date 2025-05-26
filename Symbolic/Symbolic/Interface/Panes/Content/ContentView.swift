@@ -137,11 +137,14 @@ struct ContentView: View {
 }
 
 #Preview(traits: .previewApp) {
-    EnvironmentView { model in
+    EnvironmentView(of: AppModel.self) { model in
         NavigationStack {
             ContentView(model: model)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environment(SymbolStyle())
+        .onAppear {
+            model.selectedSymbols = ["paintpalette"]
+        }
     }
 }
