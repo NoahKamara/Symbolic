@@ -5,6 +5,8 @@
 //  Copyright © 2024 Noah Kamara.
 //
 
+import GRDB
+
 public struct SFCategory: SFModel, Hashable {
     public typealias Key = String
     public static let databaseTableName = "categories"
@@ -23,6 +25,8 @@ public struct SFCategory: SFModel, Hashable {
 public struct SFSymbolCategory: SFModel {
     public static let databaseTableName = "symbol_categories"
 
+    public static let category = belongsTo(SFCategory.self)
+    
     public let symbolId: SFSymbol.RowID
     public let categoryId: SFCategory.RowID
 

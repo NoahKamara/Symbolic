@@ -59,6 +59,21 @@ public struct SFSymbolsRepository {
             try SFSymbol.filter(Column("name") == name).fetchOne(db)
         }
     }
+    
+    
+    public func detail(for name: SFSymbol.Name) async throws -> SFSymbolDetail? {
+        try await database.read { db in
+            let request = SFSymbol
+                .filter(Column("name") == name)
+                .including(all: SFSymbol.categories)
+                .including(all: SFSymbol.layersetAvailability)
+//                .annotated(with: <#T##[any SQLSelectable]#>)
+            
+            try print(request.asRequest(of: Row.self).fetchOne(db))
+            
+            return try request.asRequest(of: SFSymbolDetail.self).fetchOne(db)
+        }
+    }
 
     public func symbols(for request: SymbolsFetchRequest) async throws -> [SFSymbol] {
         var query = SFSymbol.all()
@@ -75,7 +90,7 @@ public struct SFSymbolsRepository {
             guard let categoryId else { return [] }
 
             query = query
-                .joining(required: SFSymbol.symbolCategories.filter(Column("categoryId") == categoryId))
+                .joining(required: SFSymbol.categories.filter(Column("categoryId") == categoryId))
         }
 
         let dbQuery = query
@@ -119,6 +134,8 @@ public struct SFSymbolsRepository {
         }
     }
 }
+
+
 
 public extension SFSymbolsRepository {
     static let migrator: DatabaseMigrator = {
@@ -202,52 +219,3 @@ public extension SFSymbolsRepository {
     }()
 }
 
-struct IndexedRecord: Codable, PersistableRecord {
-    static let databaseTableName: String = "symbolsFTS"
-
-    let name: String
-    let aliases: [String]
-    let categories: [String]
-}
-
-private struct SymbolCategory: Codable, PersistableRecord {
-    static let databaseTableName: String = "symbol_categories"
-
-    let symbolId: UInt64
-    let categoryId: UInt64
-
-    static let symbol = belongsTo(SFSymbol.self)
-    static let category = belongsTo(SymbolCategory.self)
-}
-
-extension SFSymbol: FetchableRecord, PersistableRecord {
-    public static let databaseTableName = "symbols"
-    fileprivate static let symbolCategories = hasMany(SymbolCategory.self)
-}
-
-extension SFRelease: FetchableRecord, PersistableRecord {
-    public static let databaseTableName = "releases"
-}
-
-enum Persistence {
-//    struct Symbol: Codable, PersistableRecord, FetchableRecord {
-//        static let category = belongsTo(SymbolCategory.self)
-//        static let databaseTableName: String = "symbols"
-//
-//        var id: Int64?
-//        let name: String
-//        let availability: String
-//
-//        mutating func didInsert(_ inserted: InsertionSuccess) {
-//            self.id = inserted.rowID
-//        }
-//    }
-
-    struct SymbolAlias: Codable, PersistableRecord, FetchableRecord {
-        static let databaseTableName: String = "symbol_aliases"
-
-        let alias: String
-        let symbolId: Int64
-        let legacy: Bool
-    }
-}

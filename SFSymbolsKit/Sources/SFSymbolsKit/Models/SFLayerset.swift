@@ -5,6 +5,8 @@
 //  Copyright © 2024 Noah Kamara.
 //
 
+import GRDB
+
 public struct SFLayerset: SFModel {
     public static let databaseTableName = "layersets"
 
@@ -21,6 +23,9 @@ public struct SFLayersetAvailability: SFRelation {
     public let symbolId: SFSymbol.RowID
     public let layersetId: SFLayerset.RowID
     public let introducedId: SFRelease.RowID
+
+    public static let layerset = belongsTo(SFLayerset.self)
+    public static let release = belongsTo(SFRelease.self)
 
     package init(
         symbolId: SFSymbol.RowID,
