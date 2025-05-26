@@ -37,21 +37,43 @@ enum Related {
 public struct SFSymbolsRepository {
     package let database: DatabaseWriter
 
-    public init(database: DatabaseWriter, createIfMissing: Bool = false) throws {
-        let isInitialized = try database.read { db in
-            try db.tableExists("symbols")
+    struct UnpreparedDatabaseError: Error, LocalizedError {
+        var errorDescription: String {
+            "Database is not prepared. Run `SFSymbolsRepository.prepare()`"
         }
-
-        if !isInitialized, createIfMissing {
-            try Self.migrator.migrate(database)
-        }
-
+    }
+    
+    /// Creates a SFSymbolsRepository from a database
+    public init(database: DatabaseWriter, createIfMissing: Bool) throws {
         self.database = database
+        try prepare()
+        
+        let isInitialized = try database.read { db in
+            try db.tableExists("meta")
+        }
+
+        if !isInitialized {
+            if createIfMissing {
+                print("Initializing Database")
+                try prepare()
+            } else {
+                throw UnpreparedDatabaseError()
+            }
+        }
     }
 
-    public init(at path: String) throws {
+    /// Creates an in-memory SFSymbolsRepository
+    static func inMemory() throws -> Self {
+        try SFSymbolsRepository(database: DatabaseQueue(), createIfMissing: true)
+    }
+
+    public init(at path: String, createIfMissing: Bool) throws {
         let database = try DatabaseQueue(path: path)
-        try self.init(database: database)
+        try self.init(database: database, createIfMissing: createIfMissing)
+    }
+
+    package func prepare() throws {
+        try Self.migrator.migrate(database)
     }
 
     public func symbol(named name: SFSymbol.Name) async throws -> SFSymbol? {
@@ -65,11 +87,11 @@ public struct SFSymbolsRepository {
         try await database.read { db in
             let request = SFSymbol
                 .filter(Column("name") == name)
+                .including(required: SFSymbol.release)
                 .including(all: SFSymbol.categories)
-                .including(all: SFSymbol.layersetAvailability)
-//                .annotated(with: <#T##[any SQLSelectable]#>)
-            
-            try print(request.asRequest(of: Row.self).fetchOne(db))
+                .including(all: SFSymbol.layersetAvailability
+                    .including(required: SFLayersetAvailability.layerset)
+                    .including(required: SFLayersetAvailability.release))
             
             return try request.asRequest(of: SFSymbolDetail.self).fetchOne(db)
         }
@@ -106,9 +128,17 @@ public struct SFSymbolsRepository {
         }
     }
 
+    public func layersets() async throws -> [SFLayerset] {
+        try await database.read { db in
+            try SFLayerset.fetchAll(db)
+        }
+    }
+
     public func releases() async throws -> [SFRelease] {
         try await database.read { db in
-            try SFRelease.fetchAll(db)
+            try SFRelease
+                .order(Column("year"))
+                .fetchAll(db)
         }
     }
 
@@ -141,6 +171,13 @@ public extension SFSymbolsRepository {
     static let migrator: DatabaseMigrator = {
         var migrator = DatabaseMigrator()
         migrator.registerMigration("init") { db in
+            try db.create(table: "meta") { t in
+                t.primaryKey("id", .integer, onConflict: .replace).defaults(to: 1).check { $0 == 1 }
+                t.column("version")
+            }
+            
+            try db.execute(literal: "INSERT INTO meta (version) VALUES ('0.1.0')")
+            
             try db.create(table: SFRelease.databaseTableName) { t in
                 t.autoIncrementedPrimaryKey("id")
                 t.column("year", .text).unique()
@@ -153,7 +190,7 @@ public extension SFSymbolsRepository {
             try db.create(table: SFSymbol.databaseTableName) { t in
                 t.autoIncrementedPrimaryKey("id")
                 t.column("name", .text).notNull().unique()
-                t.column("introducedId", .integer)
+                t.column("releaseId", .integer).references(SFRelease.databaseTableName)
             }
 
             try db.create(table: SFCategory.databaseTableName) { t in
@@ -191,7 +228,7 @@ public extension SFSymbolsRepository {
                     .notNull()
                     .references(SFLayerset.databaseTableName, onDelete: .cascade)
                 t
-                    .column("introducedId", .integer)
+                    .column("releaseId", .integer)
                     .notNull()
                     .references(SFRelease.databaseTableName, onDelete: .cascade)
             }

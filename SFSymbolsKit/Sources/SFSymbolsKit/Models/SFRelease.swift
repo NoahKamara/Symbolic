@@ -6,6 +6,8 @@
 //
 
 public struct SFRelease: SFModel {
+    public static let databaseTableName = "releases"
+    
     public typealias Year = String
 
     public let year: Year
@@ -49,6 +51,18 @@ public struct SFRelease: SFModel {
             watchOS: watchOS
         )
     }
+}
+
+extension SFRelease: Equatable, Comparable {
+    public static func == (lhs: SFRelease, rhs: SFRelease) -> Bool {
+        return lhs.year == rhs.year
+    }
+    
+    public static func < (lhs: SFRelease, rhs: SFRelease) -> Bool {
+        return lhs.year < rhs.year
+    }
+    
+
 }
 
 public typealias SemanticVersion = String

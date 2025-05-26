@@ -75,7 +75,7 @@ class Symbols {
 extension SFSymbolsRepository {
     init(named name: String = "symbols", in bundle: Bundle = .main) throws {
         let path = bundle.path(forResource: name, ofType: "sqlite")!
-        try self.init(at: path)
+        try self.init(at: path, createIfMissing: false)
     }
 }
 

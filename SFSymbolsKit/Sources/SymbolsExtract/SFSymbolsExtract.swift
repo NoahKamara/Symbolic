@@ -21,29 +21,36 @@ struct SFSymbolsExtract: AsyncParsableCommand {
     @Option(completion: .file(extensions: ["app"]))
     var app: String = "/Applications/SF Symbols.app"
 
+    @Option(help: "override existing file")
+    var force: Bool = false
+    
     mutating func run() async throws {
         let app = SFSymbolsApp(appUrl: URL(filePath: app))
 
-        if !inMemory {
-            let fm = FileManager.default
-
-            if fm.fileExists(atPath: output) {
-                print("File \(output) already exists. Overwrite? [y/N]:")
-
-                if readLine(strippingNewline: true).map({ $0.lowercased() == "y" }) ?? false {
-                    print("Overriding existing file...")
-                    try fm.removeItem(atPath: output)
-                } else {
-                    print("Ok. exiting...")
-                    return
-                }
-            }
-        }
-
-        let repository = if inMemory {
-            try SFSymbolsRepository(database: DatabaseQueue())
+        let repository: SFSymbolsRepository
+        
+        if inMemory {
+            repository = try SFSymbolsRepository(database: DatabaseQueue(), createIfMissing: true)
         } else {
-            try SFSymbolsRepository(at: output)
+            let fm = FileManager.default
+            let fileExists = fm.fileExists(atPath: output)
+            
+            
+            if fileExists {
+                if !force {
+                    print("File \(output) already exists. Overwrite? [y/N]:")
+                    
+                    if readLine(strippingNewline: true).map({ $0.lowercased() == "y" }) != true {
+                        print("Ok. exiting...")
+                        return
+                    }
+                }
+                
+                print("Deleting existing file...")
+                try fm.removeItem(atPath: output)
+            }
+            
+            repository = try SFSymbolsRepository(at: output, createIfMissing: true)
         }
 
         try await app.extract(into: repository)

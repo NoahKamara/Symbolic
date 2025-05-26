@@ -41,13 +41,12 @@ struct InspectorInfoView: View {
                     format: .list(type: .and, width: .narrow)
                 )
             }
-            
-            Section("Layersets") {
-//                Text(
-//                    .map(\.).map(\.description),
-//                    format: .list(type: .and, width: .narrow)
-//                )
-                Text("\(detail.layersetAvailability)")
+           
+            Section("Layerset Availability") {
+                ReleasesTable(
+                    introduced: detail.release,
+                    layersetAvailability: detail.layersetAvailability
+                )
             }
         } else {
             Text("")

@@ -23,6 +23,9 @@ struct SymbolInspectorModifier: ViewModifier {
             .inspector(isPresented: $isPresenting) {
                 InspectorView(style: style, selection: $selection)
                     .navigationSplitViewColumnWidth(250)
+                    .presentationDragIndicator(.hidden)
+                    .presentationBackgroundInteraction(.enabled(upThrough: .large))
+                    .presentationDetents([.fraction(0.3), .large])
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {

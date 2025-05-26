@@ -7,7 +7,7 @@
 
 import GRDB
 
-public struct SFLayerset: SFModel {
+public struct SFLayerset: SFModel, Hashable {
     public static let databaseTableName = "layersets"
 
     public typealias Name = String
@@ -22,7 +22,7 @@ public struct SFLayersetAvailability: SFRelation {
     public static let databaseTableName = "layer_availability"
     public let symbolId: SFSymbol.RowID
     public let layersetId: SFLayerset.RowID
-    public let introducedId: SFRelease.RowID
+    public let releaseId: SFRelease.RowID
 
     public static let layerset = belongsTo(SFLayerset.self)
     public static let release = belongsTo(SFRelease.self)
@@ -30,10 +30,10 @@ public struct SFLayersetAvailability: SFRelation {
     package init(
         symbolId: SFSymbol.RowID,
         layersetId: SFLayerset.RowID,
-        introducedId: SFRelease.RowID
+        releaseId: SFRelease.RowID
     ) {
         self.symbolId = symbolId
         self.layersetId = layersetId
-        self.introducedId = introducedId
+        self.releaseId = releaseId
     }
 }

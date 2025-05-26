@@ -93,7 +93,7 @@ struct SFSymbolsApp {
 
 extension SFSymbolsApp {
     func extract(into repository: SFSymbolsRepository) async throws {
-        print("Extraingig Symbols from \(metadataDirectory.path(percentEncoded: false))")
+        print("Extracting Symbols from \(metadataDirectory.path(percentEncoded: false))")
         // Load files
         let categories = try categoriesPlist()
         let nameAvailability = try nameAvailabilityPlist()
@@ -129,7 +129,7 @@ extension SFSymbolsApp {
             .map { name, releaseYear in
                 SFSymbol(
                     name: name,
-                    introducedId: releaseIds[releaseYear]!
+                    releaseId: releaseIds[releaseYear]!
                 )
             }
 
@@ -156,7 +156,7 @@ extension SFSymbolsApp {
                 SFLayersetAvailability(
                     symbolId: symbolId,
                     layersetId: layersetIds[layerset]!,
-                    introducedId: releaseIds[year]!
+                    releaseId: releaseIds[year]!
                 )
             }
         }

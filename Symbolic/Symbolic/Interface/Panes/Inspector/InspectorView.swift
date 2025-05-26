@@ -50,14 +50,14 @@ struct InspectorView: View {
         }
         .frame(maxHeight: .infinity)
         .scrollContentBackground(.hidden)
-        .safeAreaInset(edge: .top, spacing: 0) {
+        .safeAreaInset(edge: .top, spacing: 5) {
             Picker("", selection: $tab) {
                 Image(systemName: "info.circle.fill").tag(InspectorTab.info)
                 Image(systemName: "paintpalette.fill").tag(InspectorTab.style)
                 Image(systemName: "play.fill") // .tab(InspectorTab.style)
             }
             .pickerStyle(.segmented)
-            .safeAreaPadding(10)
+            .safeAreaPadding([.horizontal, .top], 10)
             .background()
         }
         .background(.background.secondary)
